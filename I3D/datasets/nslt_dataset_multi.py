@@ -274,6 +274,8 @@ def make_dataset(split_file, split, root, mode, num_classes):
 
         vid_root = root['word']
         src = 0
+        
+        isKeep = True
 
         video_path = os.path.join(vid_root, vid + '.mp4')
         if not os.path.exists(video_path):
@@ -281,13 +283,13 @@ def make_dataset(split_file, split, root, mode, num_classes):
 
         num_frames = int(cv2.VideoCapture(video_path).get(cv2.CAP_PROP_FRAME_COUNT))
 
-        #if mode == 'flow':
-        #    num_frames = num_frames // 2
+        num_for_flow = num_frames // 2
 
-        #if num_frames - 0 < 9:
-        #    print("Skip video ", vid)
-        #    count_skipping += 1
-        #    continue
+        if num_for_flow - 0 < 9:
+            print("Skip video ", vid)
+            isKeep = False
+            count_skipping += 1
+            continue
 
         label = np.zeros((num_classes, num_frames), np.float32)
 
@@ -295,9 +297,9 @@ def make_dataset(split_file, split, root, mode, num_classes):
             c_ = data[vid]['action'][0]
             label[c_][l] = 1
 
-        if len(vid) == 5:
+        if len(vid) == 5 and isKeep:
             dataset.append((vid, label, src, 0, data[vid]['action'][2] - data[vid]['action'][1]))
-        elif len(vid) == 6:  ## sign kws instances
+        elif len(vid) == 6 and isKeep:  ## sign kws instances
             dataset.append((vid, label, src, data[vid]['action'][1], data[vid]['action'][2] - data[vid]['action'][1]))
 
         i += 1

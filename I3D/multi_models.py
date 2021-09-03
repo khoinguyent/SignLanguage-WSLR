@@ -60,7 +60,8 @@ def run(configs,
     dataset_flow = Dataset(train_split, 'train', root, 'flow', train_transforms)
     dataloader_flow = torch.utils.data.DataLoader(dataset_flow, batch_size=1, num_workers=0,
                                                 pin_memory=True)
-
+    
+    print('flow dataset:', len(dataset_flow))
     val_dataset_flow = Dataset(train_split, 'test', root, 'flow', test_transforms)
     val_dataloader_flow = torch.utils.data.DataLoader(val_dataset_flow, batch_size=1, num_workers=2,
                                                 pin_memory=False)
