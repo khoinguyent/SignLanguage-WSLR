@@ -239,7 +239,6 @@ def run(configs,
                         optimizer.zero_grad()
 
                         if steps % 10 == 0:
-                            acc = float(np.trac)
                             acc = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
                             print(
                                 'Epoch {} {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(epoch,
