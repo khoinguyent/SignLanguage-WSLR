@@ -113,7 +113,7 @@ def run(configs,
     i3d_flow = nn.DataParallel(i3d_flow)
 
     mlp.cuda()
-    #mlp = nn.DataParallel(mlp)
+    mlp = nn.DataParallel(mlp)
     
     #load config
     lr = configs.init_lr
@@ -194,14 +194,21 @@ def run(configs,
                     per_frame_logits_flow = i3d_flow(inputs_flow, pretrained=False)
                     # upsample to input size
                     per_frame_logits_flow = F.upsample(per_frame_logits_flow, t_flow, mode='linear')
-                    print(type(per_frame_logits_flow))
-                    print(type(per_frame_logits_rgb))
+                    
+                    outputs = None
                     #put output of rgb stream and flow stream through MLP network
-                    combine_stream = torch.cat((per_frame_logits_flow, per_frame_logits_rgb), 1)
-                    input_ts = combine_stream.view(1, -1)
-                    print('input mlp:', type(input_ts))
-                    outputs = mlp.forward(input_ts)
+                    for i in range(0, per_frame_logits_flow.shape[2]):
+                        input_mlp = torch.cat((per_frame_logits_rgb[:,:,i], per_frame_logits_flow[:,:,i]), 1)
+                        output = mlp(input_mlp)
 
+                        if i == 0:
+                            outputs = output
+                        else:
+                            outputs = torch.cat((outputs, output))
+
+                    outputs = outputs.unsqueeze(0)
+                    outputs = torch.transpose(outputs, 1, 2)
+                    
                     #comput localization loss
                     loc_loss = F.binary_cross_entropy_with_logits(outputs, labels_rgb)
                     tot_loc_loss += loc_loss.data.item()
@@ -220,9 +227,6 @@ def run(configs,
                     loss = (0.5 * loc_loss + 0.5 * cls_loss) / num_steps_per_update
                     tot_loss += loss.data.item()
 
-                    #if num_iter == num_steps_per_update // 2:
-                    #    print(epoch, steps, loss.data.item())
-                    
                     loss.backward()
 
                     acc_train = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)

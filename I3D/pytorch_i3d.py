@@ -318,6 +318,7 @@ class InceptionI3d(nn.Module):
             self.add_module(k, self.end_points[k])
         
     def forward(self, x, pretrained=False, n_tune_layers=-1):
+        print(x.size())
         if pretrained:
             assert n_tune_layers >= 0
 
@@ -342,6 +343,7 @@ class InceptionI3d(nn.Module):
         x = self.logits(self.dropout(self.avg_pool(x)))
         if self._spatial_squeeze:
             logits = x.squeeze(3).squeeze(3)
+            print(logits.size())
         # logits is batch X time X classes, which is what we want to work with
         return logits
         
