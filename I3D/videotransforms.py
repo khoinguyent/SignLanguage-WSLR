@@ -26,12 +26,13 @@ class RandomCrop(object):
             tuple: params (i, j, h, w) to be passed to ``crop`` for random crop.
         """
         t, h, w, c = img.shape
+        print('image shape:', img.shape)
         th, tw = output_size
         if w == tw and h == th:
             return 0, 0, h, w
 
         print('crop:', h, th)
-        
+
         i = random.randint(0, h - th) if h!=th else 0
         j = random.randint(0, w - tw) if w!=tw else 0
         return i, j, th, tw
