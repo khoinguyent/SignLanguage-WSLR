@@ -51,7 +51,6 @@ def run(configs,
     dataloader_rgb = torch.utils.data.DataLoader(dataset_rgb, batch_size=1, num_workers=0,
                                                 pin_memory=True)
 
-    print('rgb dataset:', len(dataset_rgb))
     val_dataset_rgb = Dataset(train_split, 'test', root, 'rgb', test_transforms)
     val_dataloader_rgb = torch.utils.data.DataLoader(val_dataset_rgb, batch_size=1, num_workers=2,
                                                 pin_memory=False)
@@ -61,7 +60,6 @@ def run(configs,
     dataloader_flow = torch.utils.data.DataLoader(dataset_flow, batch_size=1, num_workers=0,
                                                 pin_memory=True)
     
-    print('flow dataset:', len(dataset_flow))
     val_dataset_flow = Dataset(train_split, 'test', root, 'flow', test_transforms)
     val_dataloader_flow = torch.utils.data.DataLoader(val_dataset_flow, batch_size=1, num_workers=2,
                                                 pin_memory=False)
@@ -168,7 +166,6 @@ def run(configs,
 
                 #iterate the dataset
                 try:
-                    print("start epoch")
                     num_iter += 1
 
                     data_rgb = next(dataloader_rgb_iterator)
