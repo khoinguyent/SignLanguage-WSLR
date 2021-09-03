@@ -19,7 +19,7 @@ class MLP(nn.Module):
       self.layer5 = nn.Linear(512, self.num_cls)
 
     def forward(self, x):
-      output = self.layer1(input)
+      output = self.layer1(x)
       output = self.layer2(output)
       output = self.layer4(output)
       output = self.layer5(output)
