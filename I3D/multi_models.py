@@ -200,7 +200,7 @@ def run(configs,
                     combine_stream = torch.cat((per_frame_logits_flow, per_frame_logits_rgb), 1)
                     input_ts = combine_stream.view(1, -1)
                     print('input mlp:', type(input_ts))
-                    outputs = mlp(input_ts)
+                    outputs = mlp.forward(input_ts)
 
                     #comput localization loss
                     loc_loss = F.binary_cross_entropy_with_logits(outputs, labels_rgb)
