@@ -51,6 +51,7 @@ def run(configs,
     dataloader_rgb = torch.utils.data.DataLoader(dataset_rgb, batch_size=1, num_workers=0,
                                                 pin_memory=True)
 
+    print('rgb dataset:', len(dataset_rgb))
     val_dataset_rgb = Dataset(train_split, 'test', root, 'rgb', test_transforms)
     val_dataloader_rgb = torch.utils.data.DataLoader(val_dataset_rgb, batch_size=1, num_workers=2,
                                                 pin_memory=False)
@@ -64,6 +65,7 @@ def run(configs,
     val_dataloader_flow = torch.utils.data.DataLoader(val_dataset_flow, batch_size=1, num_workers=2,
                                                 pin_memory=False)
 
+    print('flow dataset:', len(dataset_flow))
     dataloaders_rgb = {'train': dataloader_rgb, 'test': val_dataloader_rgb}
     dataloaders_flow = {'train': dataloader_flow, 'test': val_dataloader_flow}
 
@@ -173,6 +175,7 @@ def run(configs,
                 inputs_rgb, labels_rgb, vid = data_rgb
                 inputs_flow, labels_flow, vid_flow = data_flow
 
+                print('video: ',labels_rgb, vid, labels_flow, vid_flow)
                 # wrap them in Variable
                 inputs_rgb = inputs_rgb.cuda()
                 t_rgb = inputs_rgb.size(2)

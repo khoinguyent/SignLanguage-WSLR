@@ -247,7 +247,7 @@ def load_flow_frames1(image_dir, vid, start, num):
         rgb = np.asarray(rgb).transpose([1,2,0])
         prev_gray = img
         frames.append(rgb)
-        
+
     return np.asarray(frames, dtype=np.float32)
 
 
@@ -276,13 +276,13 @@ def make_dataset(split_file, split, root, mode, num_classes):
 
         num_frames = int(cv2.VideoCapture(video_path).get(cv2.CAP_PROP_FRAME_COUNT))
 
-        if mode == 'flow':
-            num_frames = num_frames // 2
+        #if mode == 'flow':
+        #    num_frames = num_frames // 2
 
-        if num_frames - 0 < 9:
-            print("Skip video ", vid)
-            count_skipping += 1
-            continue
+        #if num_frames - 0 < 9:
+        #    print("Skip video ", vid)
+        #    count_skipping += 1
+        #    continue
 
         label = np.zeros((num_classes, num_frames), np.float32)
 
