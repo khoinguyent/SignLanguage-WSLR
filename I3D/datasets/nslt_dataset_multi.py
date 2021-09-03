@@ -145,10 +145,9 @@ def video_to_flow_data(vid_root, video_file, size, nframes=None):
     # Load video into numpy array, and crop the video
     w, h, buf = raw_numpy_array(video_path, nframes=nframes)
     buf = crop_video(buf, (w, h), size)
-    print(buf)
+
     num_frames = buf.shape[1]
     flow = np.zeros((1, num_frames, size, size, 2), dtype='float32')
-    print(flow)
 
     # Convert to grayscale
     buf = np.dot(buf, np.array([0.2989, 0.5870, 0.1140]))
@@ -163,7 +162,6 @@ def video_to_flow_data(vid_root, video_file, size, nframes=None):
         cur_flow[cur_flow > 20] = 20
         cur_flow /= 20
         flow[0, i] = cur_flow
-    print(np.asarray(flow, dtype=np.float32))
     return np.asarray(flow, dtype=np.float32)
 
 def load_flow_frames(image_dir, vid, start, num):
