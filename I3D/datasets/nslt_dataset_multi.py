@@ -187,23 +187,15 @@ def load_flow_frames(image_dir, vid, start, num):
 
 def load_flow_frames1(image_dir, vid, start, num):
     video_path = os.path.join(image_dir, vid + '.mp4')
-
     vidcap = cv2.VideoCapture(video_path)
 
     frames = []
-
     total_frames = vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
-    w = vidcap.get(cv2.CAP_PROP_FRAME_WIDTH)
-    h = vidcap.get(cv2.CAP_PROP_FRAME_HEIGHT)
     isFirst = True
-    
+
     prev_gray = []
-
-    mask = np.zeros_like(w,h)
-    # Sets image saturation to maximum
-    mask[..., 1] = 255
-
     vidcap.set(cv2.CAP_PROP_POS_FRAMES, start)
+
     for offset in range(min(num, int(total_frames - start))):
         success, img = vidcap.read()
 
@@ -220,18 +212,27 @@ def load_flow_frames1(image_dir, vid, start, num):
 
         if(isFirst):
             prev_gray = img
+            mask = np.zeros((img.shape[0], img.shape[1],3))
+            # mask = mask[...,np.newaxis, np.newaxis, np.newaxis]
+            # mask = mask.reshape(img.shape[0], img.shape[1],3)
+            #print(mask.shape)
+            # Sets image saturation to maximum
+            mask[..., 1] = 255
+            isFirst = False
             continue
 
         # Calculates dense optical flow by Farneback method
         flow = cv2.calcOpticalFlowFarneback(prev_gray, img, 
                                             None,
                                             0.5, 3, 15, 3, 5, 1.2, 0)
-
+        #print('flow shape:', flow.shape)
         # Computes the magnitude and angle of the 2D vectors
         magnitude, angle = cv2.cartToPolar(flow[..., 0], flow[..., 1])
-
+        #print('angle shape: ', angle.shape)
+        #print(magnitude.shape)
         # Sets image hue according to the optical flow 
         # direction
+        # o day ha
         mask[..., 0] = angle * 180 / np.pi / 2
         
         # Sets image value according to the optical flow
@@ -239,8 +240,11 @@ def load_flow_frames1(image_dir, vid, start, num):
         mask[..., 2] = cv2.normalize(magnitude, None, 0, 255, cv2.NORM_MINMAX)
 
         # Converts HSV to RGB (BGR) color representation
-        rgb = cv2.cvtColor(mask, cv2.COLOR_HSV2BGR)
-        isFirst = False
+        img_float32 = np.float32(mask)
+        #lab_image = cv.cvtColor(img_float32, cv.COLOR_RGB2HSV)
+        rgb = cv2.cvtColor(img_float32, cv2.COLOR_HSV2BGR)
+
+        rgb = np.asarray(rgb).transpose([1,2,0])
         prev_gray = img
         frames.append(rgb)
         
