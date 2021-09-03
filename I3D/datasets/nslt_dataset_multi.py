@@ -346,7 +346,7 @@ class NSLT(data_utl.Dataset):
             imgs = load_flow_frames1(self.root['word'], vid, start_f, total_frames)
 
         imgs, label = self.pad(imgs, label, total_frames)
-
+        print(imgs)
         imgs = self.transforms(imgs)
 
         ret_lab = torch.from_numpy(label)
