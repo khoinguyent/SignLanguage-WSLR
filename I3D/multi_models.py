@@ -113,7 +113,7 @@ def run(configs,
     i3d_flow = nn.DataParallel(i3d_flow)
 
     mlp.cuda()
-    mlp = nn.DataParallel(mlp)
+    #mlp = nn.DataParallel(mlp)
     
     #load config
     lr = configs.init_lr
