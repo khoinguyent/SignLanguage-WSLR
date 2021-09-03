@@ -338,7 +338,7 @@ class NSLT(data_utl.Dataset):
         if self.mode == 'rgb':
             imgs = load_rgb_frames_from_video(self.root['word'], vid, start_f, total_frames)
         else:
-            imgs = video_to_flow_data(self.root['word'], vid, start_f, total_frames)
+            imgs = load_flow_frames1(self.root['word'], vid, start_f, total_frames)
 
         imgs, label = self.pad(imgs, label, total_frames)
 
