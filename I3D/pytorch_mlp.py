@@ -13,7 +13,7 @@ class MLP(nn.Module):
       super().__init__()
       # Định nghĩa các layers
       self.num_cls = num_classes
-      self.layer1 = nn.Linear(num_classes * total_frames * 2, 512)
+      self.layer1 = nn.Linear(num_classes * 2, 512)
       self.layer2 = nn.ReLU()
       self.layer4 = nn.Dropout(0.5)
       self.layer5 = nn.Linear(512, self.num_cls)
