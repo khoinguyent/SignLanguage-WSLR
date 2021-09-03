@@ -245,7 +245,7 @@ def load_flow_frames1(image_dir, vid, start, num):
         img_float32 = np.float32(mask)
         #lab_image = cv.cvtColor(img_float32, cv.COLOR_RGB2HSV)
         rgb = cv2.cvtColor(img_float32, cv2.COLOR_HSV2BGR)
-
+        rgb = cv2.cvtColor(rgb, cv2.COLOR_BGR2GRAY)
         rgb = np.asarray([rgb, prev_gray]).transpose([1, 2, 0])
         prev_gray = img
         frames.append(rgb)
