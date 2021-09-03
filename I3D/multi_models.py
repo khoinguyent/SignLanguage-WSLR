@@ -115,7 +115,7 @@ def run(configs,
     
     #load config
     lr = configs.init_lr
-    weight_decay = configs.add_weight_decay
+    weight_decay = configs.adam_weight_decay
     
     optimizer = optim.Adam([
         {'params': i3d_rgb.parameters()},
