@@ -185,23 +185,23 @@ def load_flow_frames(image_dir, vid, start, num):
         frames.append(img)
     return np.asarray(frames, dtype=np.float32)
 
-def load_flow_frames1(image_dir, vid, start, num):
+def load_flow_frames_upd(image_dir, vid, start, num):
     video_path = os.path.join(image_dir, vid + '.mp4')
     print(video_path)
     vidcap = cv2.VideoCapture(video_path)
 
     frames = []
+
     total_frames = vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
     isFirst = True
-
+  
     prev_gray = []
+    # i = 0
     vidcap.set(cv2.CAP_PROP_POS_FRAMES, start)
-
     for offset in range(min(num, int(total_frames - start))):
         success, img = vidcap.read()
 
         w, h, c = img.shape
-        print(w, h, c)
         if w < 226 or h < 226:
             d = 226. - min(w, h)
             sc = 1 + d / min(w, h)
@@ -209,6 +209,9 @@ def load_flow_frames1(image_dir, vid, start, num):
 
         if w > 256 or h > 256:
             img = cv2.resize(img, (math.ceil(w * (256 / w)), math.ceil(h * (256 / h))))
+
+        # if(i < 31):
+        #   cv2_imshow(img)
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -249,7 +252,7 @@ def load_flow_frames1(image_dir, vid, start, num):
         rgb = np.asarray([rgb, prev_gray]).transpose([1, 2, 0])
         prev_gray = img
         frames.append(rgb)
-
+      
     return np.asarray(frames, dtype=np.float32)
 
 
@@ -343,7 +346,7 @@ class NSLT(data_utl.Dataset):
         if self.mode == 'rgb':
             imgs = load_rgb_frames_from_video(self.root['word'], vid, start_f, total_frames)
         else:
-            imgs = load_flow_frames1(self.root['word'], vid, start_f, total_frames)
+            imgs = load_flow_frames_upd(self.root['word'], vid, start_f, total_frames)
 
         imgs, label = self.pad(imgs, label, total_frames)
         print(imgs)
