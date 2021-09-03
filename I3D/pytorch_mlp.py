@@ -11,7 +11,6 @@ import sys
 class MLP(nn.Module):
     def __init__(self, num_classes, total_frames):
       super().__init__()
-      # Định nghĩa các layers
       self.num_cls = num_classes
       self.layer1 = nn.Linear(num_classes * 2, 512)
       self.layer2 = nn.ReLU()
