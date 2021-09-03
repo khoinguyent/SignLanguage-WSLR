@@ -187,7 +187,7 @@ def load_flow_frames(image_dir, vid, start, num):
 
 def load_flow_frames_upd(image_dir, vid, start, num):
     video_path = os.path.join(image_dir, vid + '.mp4')
-    print(video_path)
+    #print(video_path)
     vidcap = cv2.VideoCapture(video_path)
 
     frames = []
@@ -349,7 +349,7 @@ class NSLT(data_utl.Dataset):
             imgs = load_flow_frames_upd(self.root['word'], vid, start_f, total_frames)
 
         imgs, label = self.pad(imgs, label, total_frames)
-        print(imgs)
+        #print(imgs)
         imgs = self.transforms(imgs)
 
         ret_lab = torch.from_numpy(label)

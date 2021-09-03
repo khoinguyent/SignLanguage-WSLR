@@ -65,7 +65,6 @@ def run(configs,
     val_dataloader_flow = torch.utils.data.DataLoader(val_dataset_flow, batch_size=1, num_workers=2,
                                                 pin_memory=False)
 
-    print('flow dataset:', len(dataset_flow))
     dataloaders_rgb = {'train': dataloader_rgb, 'test': val_dataloader_rgb}
     dataloaders_flow = {'train': dataloader_flow, 'test': val_dataloader_flow}
 
@@ -263,7 +262,7 @@ def run(configs,
 
                             print(model_name)
                         
-                        print('VALIDATION: {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(phase,
+                            print('VALIDATION: {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(phase,
                                                                                                                 tot_loc_loss / num_iter,
                                                                                                                 tot_cls_loss / num_iter,
                                                                                                                 (tot_loss * num_steps_per_update) / num_iter,
