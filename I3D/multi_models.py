@@ -199,6 +199,7 @@ def run(configs,
                     #put output of rgb stream and flow stream through MLP network
                     combine_stream = torch.cat((per_frame_logits_flow, per_frame_logits_rgb), 1)
                     input_ts = combine_stream.view(1, -1)
+                    print('input mlp:', type(input_ts))
                     outputs = mlp(input_ts)
 
                     #comput localization loss
