@@ -67,13 +67,14 @@ def run(configs,
     num_classes = dataset.num_classes
     i3d.replace_logits(num_classes)
 
-    #remove log files when train from begining
-    if(os.path.exists("logs.csv")):
-        os.remove("logs.csv")
+    #remove log files when train from begini
+    if(weights == None):
+      if(os.path.exists("logs.csv")):
+          os.remove("logs.csv")
 
-        with open ("logs.csv",'a') as logs:
-            line = 'epoch\tacc_train\ttot_loss_train\tacc_val\ttotal_loss_train'
-            logs.writelines(line)
+      with open ("logs.csv",'a') as logs:
+          line = 'epoch\tacc_train\ttot_loss_train\tacc_val\ttotal_loss_train\n'
+          logs.writelines(line)
 
     last_epoch = 0
     if weights:
@@ -81,8 +82,8 @@ def run(configs,
         i3d.load_state_dict(torch.load(weights))
 
         #load the last epoch
-        load_logs_data = pd.read_csv("logs.csv", header=True)
-        last_epoch = int(load_logs_data.tail(1).values.tolist()[0])
+        load_logs_data = pd.read_csv("logs.csv", sep='\t', engine='python')
+        last_epoch = int(load_logs_data.tail(1).values.tolist()[0][0])
 
     i3d.cuda()
     i3d = nn.DataParallel(i3d)
@@ -130,7 +131,7 @@ def run(configs,
             for data in dataloaders[phase]:
                 num_iter += 1
                 # get the inputs
-                if data == -1: # bracewell does not compile opencv with ffmpeg, strange errors occur resulting in no video loaded
+                if data[0] == -1: # bracewell does not compile opencv with ffmpeg, strange errors occur resulting in no video loaded
                     continue
 
                 # inputs, labels, vid, src = data
@@ -189,7 +190,7 @@ def run(configs,
                 val_score = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
                 if val_score > best_val_score or epoch % 2 == 0:
                     best_val_score = val_score
-                    model_name = save_model + "nslt_" + str(num_classes) + "_" + str(epoch).zfill(
+                    model_name = save_model + "nslt_" + str(num_classes) + "_" + str(epoch + last_epoch).zfill(
                                    6) + '_%3f.pt' % val_score
 
                     torch.save(i3d.module.state_dict(), model_name)
@@ -208,15 +209,15 @@ def run(configs,
         #print()
         #write log
         with open ("logs.csv",'a') as logs:
-            line = '{}\t{}\t{}\t{}\t{}'.format(epoch + last_epoch, acc_train, tot_loss_train, acc_val, tot_loss_val)
+            line = '{}\t{}\t{}\t{}\t{}\n'.format(epoch + last_epoch, acc_train, tot_loss_train, acc_val, tot_loss_val)
             logs.writelines(line)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('-mode', type=str, help='rgb or flow', default='rgb')
-    parser.add_argument('-weights', type=str, default=None)
-    parser.add_argument('-save_model', type=str, default='checkpoints/')
-    parser.add_argument('-root', type=str, default={'word': '../data/WLASL2000'})
+    parser.add_argument('--mode', type=str, help='rgb or flow', default='rgb')
+    parser.add_argument('--weights', type=str, default=None)
+    parser.add_argument('--save_model', type=str, default='checkpoints/')
+    parser.add_argument('--root', type=str, default={'word': '../data/WLASL2000'})
     parser.add_argument('--num_class', type=int, default=2000)
     parser.add_argument('--config', type=str, default='configfiles/asl2000.ini')
     parser.add_argument('--train_split', type=str, default='preprocess/nslt_2000.json')
