@@ -82,13 +82,26 @@ def run(configs,
     i3d_rgb.replace_logits(num_classes)
     i3d_flow.replace_logits(num_classes)
 
+    last_epoch = 0
     #load weights
-    if(weights):
+    if(weights == None):
+        if(os.path.exists("logs.csv")):
+            os.remove("logs.csv")
+
+        with open ("logs.csv",'a') as logs:
+            line = 'epoch\tacc_train\ttot_loss_train\tacc_val\ttotal_loss_train\n'
+            logs.writelines(line)
+    else:
         print("load weights {}".format(weights))
         weights = torch.load(weights)
         i3d_rgb.load_state_dict(weights['rgb'])
         i3d_flow.load_state_dict(weights['flow'])
         mlp.load_state_dict(weights['mlp'])
+
+        #continue write files
+        #load the last epoch
+        load_logs_data = pd.read_csv("logs.csv", sep='\t', engine='python')
+        last_epoch = int(load_logs_data.tail(1).values.tolist()[0][0])
 
     #cuda
     i3d_rgb.cuda()
@@ -115,6 +128,12 @@ def run(configs,
     epoch = 0
 
     best_val_score = 0
+
+    acc_train = 0.0
+    tot_loss_train = 0.0
+
+    acc_val = 0.0
+    tot_loss_val = 0.0
     
     #train
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=5, factor=0.3)
@@ -199,6 +218,9 @@ def run(configs,
                 
                 loss.backward()
 
+                acc_train = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
+                tot_loss_train = tot_loss / 10
+
                 if num_iter == num_steps_per_update and phase == 'train':
                     steps += 1
                     num_iter = 0
@@ -219,6 +241,9 @@ def run(configs,
                         tot_loss = tot_loc_loss = tot_cls_loss = 0.0
                 
                 if phase == 'test':
+                    if not os.path.exists(os.path.join(os.getcwd(), save_model)):
+                        os.mkdir(os.path.join(os.getcwd(), save_model))
+
                     val_score = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
                     if val_score > best_val_score or epoch % 2 == 0:
                         best_val_score = val_score
@@ -240,9 +265,15 @@ def run(configs,
                                                                                                               val_score
                                                                                                               ))
 
+                    acc_val = val_score
+                    tot_loss_val = (tot_loss * num_steps_per_update) / num_iter
                     scheduler.step(tot_loss * num_steps_per_update / num_iter)
             except KeyError:
                 print("End epoch")
+
+        with open ("logs.csv",'a') as logs:
+            line = '{}\t{}\t{}\t{}\t{}\n'.format(epoch + last_epoch, acc_train, tot_loss_train, acc_val, tot_loss_val)
+            logs.writelines(line)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
