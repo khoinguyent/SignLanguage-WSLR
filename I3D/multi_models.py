@@ -161,118 +161,121 @@ def run(configs,
 
             confusion_matrix = np.zeros((num_classes, num_classes), dtype = np.int)
 
-            dataloader_rgb_iterator = iter(dataloaders_rgb[phase])
-            dataloader_flow_iterator = iter(dataloaders_flow[phase])
+            isDataloaderEnd = False
+            while(not isDataloaderEnd):
+                dataloader_rgb_iterator = iter(dataloaders_rgb[phase])
+                dataloader_flow_iterator = iter(dataloaders_flow[phase])
 
-            #iterate the dataset
-            try:
-                print("start epoch")
-                num_iter += 1
+                #iterate the dataset
+                try:
+                    print("start epoch")
+                    num_iter += 1
 
-                data_rgb = next(dataloader_rgb_iterator)
-                data_flow = next(dataloader_flow_iterator)
+                    data_rgb = next(dataloader_rgb_iterator)
+                    data_flow = next(dataloader_flow_iterator)
 
-                inputs_rgb, labels_rgb, vid = data_rgb
-                inputs_flow, labels_flow, vid_flow = data_flow
+                    inputs_rgb, labels_rgb, vid = data_rgb
+                    inputs_flow, labels_flow, vid_flow = data_flow
 
-                print('video: ',labels_rgb, vid, labels_flow, vid_flow)
-                # wrap them in Variable
-                inputs_rgb = inputs_rgb.cuda()
-                t_rgb = inputs_rgb.size(2)
-                labels_rgb = labels_rgb.cuda()
+                    print('video: ',labels_rgb, vid, labels_flow, vid_flow)
+                    # wrap them in Variable
+                    inputs_rgb = inputs_rgb.cuda()
+                    t_rgb = inputs_rgb.size(2)
+                    labels_rgb = labels_rgb.cuda()
 
-                per_frame_logits_rgb = i3d_rgb(inputs_rgb, pretrained=False)
-                # upsample to input size
-                per_frame_logits_rgb = F.upsample(per_frame_logits_rgb, t_rgb, mode='linear')
+                    per_frame_logits_rgb = i3d_rgb(inputs_rgb, pretrained=False)
+                    # upsample to input size
+                    per_frame_logits_rgb = F.upsample(per_frame_logits_rgb, t_rgb, mode='linear')
 
-                inputs_flow = inputs_flow.cuda()
-                t_flow = inputs_flow.size(2)
-                labels_flow = labels_flow.cuda()
+                    inputs_flow = inputs_flow.cuda()
+                    t_flow = inputs_flow.size(2)
+                    labels_flow = labels_flow.cuda()
 
-                per_frame_logits_flow = i3d_flow(inputs_flow, pretrained=False)
-                # upsample to input size
-                per_frame_logits_flow = F.upsample(per_frame_logits_flow, t_flow, mode='linear')
-                
-                #put output of rgb stream and flow stream through MLP network
-                combine_stream = torch.cat((per_frame_logits_flow, per_frame_logits_rgb), 1)
-                input_ts = combine_stream.view(1, -1)
-                outputs = mlp(input_ts)
-
-                #comput localization loss
-                loc_loss = F.binary_cross_entropy_with_logits(outputs, labels_rgb)
-                tot_loc_loss += loc_loss.data.item()
-
-                predictions = torch.max(outputs, dim=2)[0]
-                gt = torch.max(labels_rgb, dim=2)[0]
-
-                #comput classification loos( with max-pooling along time B X C X T)
-                cls_loss = F.binary_cross_entropy_with_logits(torch.max(outputs, dim=2)[0],
-                                                              torch.max(labels_rgb, dim=2)[0])
-                tot_cls_loss += cls_loss.data.item()
-
-                for i in range(outputs.shape[0]):
-                    confusion_matrix[torch.argmax(gt[i]).item(), torch.argmax(predictions[i]).item()] += 1
-
-                loss = (0.5 * loc_loss + 0.5 * cls_loss) / num_steps_per_update
-                tot_loss += loss.data.item()
-
-                #if num_iter == num_steps_per_update // 2:
-                #    print(epoch, steps, loss.data.item())
-                
-                loss.backward()
-
-                acc_train = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
-                tot_loss_train = tot_loss / 10
-
-                if num_iter == num_steps_per_update and phase == 'train':
-                    steps += 1
-                    num_iter = 0
-                    optimizer.step()
-                    optimizer.zero_grad()
-
-                    if steps % 10 == 0:
-                        acc = float(np.trac)
-                        acc = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
-                        print(
-                            'Epoch {} {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(epoch,
-                                                                                                                 phase,
-                                                                                                                 tot_loc_loss / (10 * num_steps_per_update),
-                                                                                                                 tot_cls_loss / (10 * num_steps_per_update),
-                                                                                                                 tot_loss / 10,
-                                                                                                                 acc))
-                            
-                        tot_loss = tot_loc_loss = tot_cls_loss = 0.0
-                
-                if phase == 'test':
-                    if not os.path.exists(os.path.join(os.getcwd(), save_model)):
-                        os.mkdir(os.path.join(os.getcwd(), save_model))
-
-                    val_score = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
-                    if val_score > best_val_score or epoch % 2 == 0:
-                        best_val_score = val_score
-                        model_name = save_model + "nslt_" + str(num_classes) + "_" + str(steps).zfill(
-                                    6) + '_%3f.pt' % val_score
-
-                        torch.save({
-                            'rgb': i3d_rgb.state_dict(),
-                            'flow': i3d_flow.state_dict(),
-                            'mlp': mlp.state_dict()
-                        }, model_name)
-
-                        print(model_name)
+                    per_frame_logits_flow = i3d_flow(inputs_flow, pretrained=False)
+                    # upsample to input size
+                    per_frame_logits_flow = F.upsample(per_frame_logits_flow, t_flow, mode='linear')
                     
-                    print('VALIDATION: {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(phase,
-                                                                                                              tot_loc_loss / num_iter,
-                                                                                                              tot_cls_loss / num_iter,
-                                                                                                              (tot_loss * num_steps_per_update) / num_iter,
-                                                                                                              val_score
-                                                                                                              ))
+                    #put output of rgb stream and flow stream through MLP network
+                    combine_stream = torch.cat((per_frame_logits_flow, per_frame_logits_rgb), 1)
+                    input_ts = combine_stream.view(1, -1)
+                    outputs = mlp(input_ts)
 
-                    acc_val = val_score
-                    tot_loss_val = (tot_loss * num_steps_per_update) / num_iter
-                    scheduler.step(tot_loss * num_steps_per_update / num_iter)
-            except KeyError:
-                print("End epoch")
+                    #comput localization loss
+                    loc_loss = F.binary_cross_entropy_with_logits(outputs, labels_rgb)
+                    tot_loc_loss += loc_loss.data.item()
+
+                    predictions = torch.max(outputs, dim=2)[0]
+                    gt = torch.max(labels_rgb, dim=2)[0]
+
+                    #comput classification loos( with max-pooling along time B X C X T)
+                    cls_loss = F.binary_cross_entropy_with_logits(torch.max(outputs, dim=2)[0],
+                                                                torch.max(labels_rgb, dim=2)[0])
+                    tot_cls_loss += cls_loss.data.item()
+
+                    for i in range(outputs.shape[0]):
+                        confusion_matrix[torch.argmax(gt[i]).item(), torch.argmax(predictions[i]).item()] += 1
+
+                    loss = (0.5 * loc_loss + 0.5 * cls_loss) / num_steps_per_update
+                    tot_loss += loss.data.item()
+
+                    #if num_iter == num_steps_per_update // 2:
+                    #    print(epoch, steps, loss.data.item())
+                    
+                    loss.backward()
+
+                    acc_train = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
+                    tot_loss_train = tot_loss / 10
+
+                    if num_iter == num_steps_per_update and phase == 'train':
+                        steps += 1
+                        num_iter = 0
+                        optimizer.step()
+                        optimizer.zero_grad()
+
+                        if steps % 10 == 0:
+                            acc = float(np.trac)
+                            acc = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
+                            print(
+                                'Epoch {} {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(epoch,
+                                                                                                                    phase,
+                                                                                                                    tot_loc_loss / (10 * num_steps_per_update),
+                                                                                                                    tot_cls_loss / (10 * num_steps_per_update),
+                                                                                                                    tot_loss / 10,
+                                                                                                                    acc))
+                                
+                            tot_loss = tot_loc_loss = tot_cls_loss = 0.0
+                    
+                    if phase == 'test':
+                        if not os.path.exists(os.path.join(os.getcwd(), save_model)):
+                            os.mkdir(os.path.join(os.getcwd(), save_model))
+
+                        val_score = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
+                        if val_score > best_val_score or epoch % 2 == 0:
+                            best_val_score = val_score
+                            model_name = save_model + "nslt_" + str(num_classes) + "_" + str(steps).zfill(
+                                        6) + '_%3f.pt' % val_score
+
+                            torch.save({
+                                'rgb': i3d_rgb.state_dict(),
+                                'flow': i3d_flow.state_dict(),
+                                'mlp': mlp.state_dict()
+                            }, model_name)
+
+                            print(model_name)
+                        
+                        print('VALIDATION: {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(phase,
+                                                                                                                tot_loc_loss / num_iter,
+                                                                                                                tot_cls_loss / num_iter,
+                                                                                                                (tot_loss * num_steps_per_update) / num_iter,
+                                                                                                                val_score
+                                                                                                                ))
+
+                        acc_val = val_score
+                        tot_loss_val = (tot_loss * num_steps_per_update) / num_iter
+                        scheduler.step(tot_loss * num_steps_per_update / num_iter)
+                except KeyError:
+                    print("End epoch")
+                    isDataloaderEnd = True
 
         with open ("logs.csv",'a') as logs:
             line = '{}\t{}\t{}\t{}\t{}\n'.format(epoch + last_epoch, acc_train, tot_loss_train, acc_val, tot_loss_val)
