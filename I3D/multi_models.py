@@ -19,7 +19,7 @@ from pytorch_i3d import InceptionI3d
 from pytorch_mlp import MLP
 
 # from datasets.nslt_dataset import NSLT as Dataset
-from datasets.nslt_dataset import NSLT as Dataset
+from datasets.nslt_dataset_multi import NSLT as Dataset
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = '0'
