@@ -187,6 +187,7 @@ def load_flow_frames(image_dir, vid, start, num):
 
 def load_flow_frames1(image_dir, vid, start, num):
     video_path = os.path.join(image_dir, vid + '.mp4')
+    print(video_path)
     vidcap = cv2.VideoCapture(video_path)
 
     frames = []
@@ -200,6 +201,7 @@ def load_flow_frames1(image_dir, vid, start, num):
         success, img = vidcap.read()
 
         w, h, c = img.shape
+        print(w, h, c)
         if w < 226 or h < 226:
             d = 226. - min(w, h)
             sc = 1 + d / min(w, h)
@@ -330,7 +332,6 @@ class NSLT(data_utl.Dataset):
             tuple: (image, target) where target is class_index of the target class.
         """
         vid, label, src, start_frame, nf = self.data[index]
-        print('video name:', vid)
 
         total_frames = 64
 
