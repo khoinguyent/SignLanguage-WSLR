@@ -157,7 +157,7 @@ def run(configs,
             num_iter = 0
             optimizer.zero_grad()
 
-            confusion_matrix = np.zero((num_classes, num_classes), dtype = np.int)
+            confusion_matrix = np.zeros((num_classes, num_classes), dtype = np.int)
 
             dataloader_rgb_iterator = iter(dataloaders_rgb[phase])
             dataloader_flow_iterator = iter(dataloaders_flow[phase])
