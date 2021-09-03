@@ -177,7 +177,7 @@ def run(configs,
                     inputs_rgb, labels_rgb, vid = data_rgb
                     inputs_flow, labels_flow, vid_flow = data_flow
 
-                    print('video: ',labels_rgb, vid, labels_flow, vid_flow)
+                    #print('video: ',labels_rgb, vid, labels_flow, vid_flow)
                     # wrap them in Variable
                     inputs_rgb = inputs_rgb.cuda()
                     t_rgb = inputs_rgb.size(2)
@@ -185,7 +185,7 @@ def run(configs,
 
                     per_frame_logits_rgb = i3d_rgb(inputs_rgb, pretrained=False)
                     # upsample to input size
-                    per_frame_logits_rgb = F.upsample(per_frame_logits_rgb, t_rgb, mode='linear')
+                    #per_frame_logits_rgb = F.upsample(per_frame_logits_rgb, t_rgb, mode='linear')
 
                     inputs_flow = inputs_flow.cuda()
                     t_flow = inputs_flow.size(2)
@@ -193,7 +193,7 @@ def run(configs,
 
                     per_frame_logits_flow = i3d_flow(inputs_flow, pretrained=False)
                     # upsample to input size
-                    per_frame_logits_flow = F.upsample(per_frame_logits_flow, t_flow, mode='linear')
+                    #per_frame_logits_flow = F.upsample(per_frame_logits_flow, t_flow, mode='linear')
                     print(type(per_frame_logits_flow))
                     print(type(per_frame_logits_rgb))
                     #put output of rgb stream and flow stream through MLP network
