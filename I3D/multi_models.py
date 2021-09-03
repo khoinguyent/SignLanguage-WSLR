@@ -193,7 +193,8 @@ def run(configs,
                     per_frame_logits_flow = i3d_flow(inputs_flow, pretrained=False)
                     # upsample to input size
                     per_frame_logits_flow = F.upsample(per_frame_logits_flow, t_flow, mode='linear')
-                    
+                    print(type(per_frame_logits_flow))
+                    print(type(per_frame_logits_rgb))
                     #put output of rgb stream and flow stream through MLP network
                     combine_stream = torch.cat((per_frame_logits_flow, per_frame_logits_rgb), 1)
                     input_ts = combine_stream.view(1, -1)
