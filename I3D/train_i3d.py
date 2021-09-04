@@ -128,9 +128,7 @@ def run(configs,
 
             confusion_matrix = np.zeros((num_classes, num_classes), dtype=np.int)
             # Iterate over data.
-            process_video_num = 0
             for data in dataloaders[phase]:
-                process_video_num += 1
                 num_iter += 1
                 # get the inputs
                 if data[0] == -1: # bracewell does not compile opencv with ffmpeg, strange errors occur resulting in no video loaded
