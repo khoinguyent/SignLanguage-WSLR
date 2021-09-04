@@ -279,7 +279,7 @@ def run(configs,
                         acc_val = val_score
                         tot_loss_val = (tot_loss * num_steps_per_update) / num_iter
                         scheduler.step(tot_loss * num_steps_per_update / num_iter)
-                except KeyError:
+                except:
                     print("End epoch")
                     isDataloaderEnd = True
 
