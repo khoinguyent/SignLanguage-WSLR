@@ -128,7 +128,9 @@ def run(configs,
 
             confusion_matrix = np.zeros((num_classes, num_classes), dtype=np.int)
             # Iterate over data.
+            process_video_num = 0
             for data in dataloaders[phase]:
+                process_video_num += 1
                 num_iter += 1
                 # get the inputs
                 if data[0] == -1: # bracewell does not compile opencv with ffmpeg, strange errors occur resulting in no video loaded
@@ -179,7 +181,8 @@ def run(configs,
                     if steps % 10 == 0:
                         acc = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
                         print(
-                            'Epoch {} {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(epoch,
+                            'Epoch {} Video #{} {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(epoch,
+                                                                                                                 process_video_num,
                                                                                                                  phase,
                                                                                                                  tot_loc_loss / (10 * num_steps_per_update),
                                                                                                                  tot_cls_loss / (10 * num_steps_per_update),

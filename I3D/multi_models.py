@@ -160,7 +160,9 @@ def run(configs,
             confusion_matrix = np.zeros((num_classes, num_classes), dtype = np.int)
 
             isDataloaderEnd = False
+            video_number = 0
             while(not isDataloaderEnd):
+                video_number += 1
                 dataloader_rgb_iterator = iter(dataloaders_rgb[phase])
                 dataloader_flow_iterator = iter(dataloaders_flow[phase])
 
@@ -238,7 +240,9 @@ def run(configs,
                         if steps % 10 == 0:
                             acc = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
                             print(
-                                'Epoch {} {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(epoch,
+                                'Epoch {} Step{} Video#{} {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(epoch,
+                                                                                                                    steps,
+                                                                                                                    video_number,
                                                                                                                     phase,
                                                                                                                     tot_loc_loss / (10 * num_steps_per_update),
                                                                                                                     tot_cls_loss / (10 * num_steps_per_update),
