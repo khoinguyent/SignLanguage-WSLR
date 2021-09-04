@@ -258,7 +258,7 @@ def make_dataset(split_file, split, root, num_classes):
     dataset = []
     with open(split_file, 'r') as f:
         data = json.load(f)
-        
+
     i = 0
     count_skipping = 0
     for vid in data.keys():
@@ -334,7 +334,7 @@ class NSLT(data_utl.Dataset):
             tuple: (image, target) where target is class_index of the target class.
         """
         vid, label, src, start_frame, nf = self.data[index]
-
+        print(vid)
         total_frames = 64
 
         try:
@@ -343,10 +343,10 @@ class NSLT(data_utl.Dataset):
             start_f = start_frame
 
         imgs_rgb = load_rgb_frames_from_video(self.root['word'], vid, start_f, total_frames)
-
+        print(imgs_rgb.shape[0])
         imgs_flow = load_flow_frames_upd(self.root['word'], vid, start_f, total_frames)
+        print(imgs_rgb.shape[0])
         
-    
         imgs_rgb, label = self.pad(imgs_rgb, label, total_frames)
         imgs_flow, label = self.pad(imgs_flow, label, total_frames)
         #print(imgs)
