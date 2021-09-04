@@ -254,12 +254,11 @@ def load_flow_frames_upd(image_dir, vid, start, num):
     return np.asarray(frames, dtype=np.float32)
 
 
-def make_dataset(split_file, split, root, mode, num_classes):
+def make_dataset(split_file, split, root, num_classes):
     dataset = []
     with open(split_file, 'r') as f:
         data = json.load(f)
-
-    print('data len make dataset:', len(data))
+        
     i = 0
     count_skipping = 0
     for vid in data.keys():
@@ -343,17 +342,22 @@ class NSLT(data_utl.Dataset):
         except ValueError:
             start_f = start_frame
 
-        if self.mode == 'rgb':
-            imgs = load_rgb_frames_from_video(self.root['word'], vid, start_f, total_frames)
-        else:
-            imgs = load_flow_frames_upd(self.root['word'], vid, start_f, total_frames)
+        imgs_rgb = load_rgb_frames_from_video(self.root['word'], vid, start_f, total_frames)
 
-        imgs, label = self.pad(imgs, label, total_frames)
+        imgs_flow = load_flow_frames_upd(self.root['word'], vid, start_f, total_frames)
+        
+    
+        imgs_rgb, label = self.pad(imgs_rgb, label, total_frames)
+        imgs_flow, label = self.pad(imgs_flow, label, total_frames)
         #print(imgs)
-        imgs = self.transforms(imgs)
+        imgs_rgb = self.transforms(imgs_rgb)
+        imgs_flow = self.transforms(imgs_flow)
 
         ret_lab = torch.from_numpy(label)
-        ret_img = video_to_tensor(imgs)
+        ret_img = {
+            'rgb': video_to_tensor(imgs_rgb),
+            'flow': video_to_tensor(imgs_flow)
+        }
 
         return ret_img, ret_lab, vid
 

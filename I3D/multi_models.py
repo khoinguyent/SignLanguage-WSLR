@@ -47,27 +47,18 @@ def run(configs,
     test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
     #RGB data stream
-    dataset_rgb = Dataset(train_split, 'train', root, 'rgb', train_transforms)
-    dataloader_rgb = torch.utils.data.DataLoader(dataset_rgb, batch_size=1, num_workers=0,
+    dataset = Dataset(train_split, 'train', root, train_transforms)
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, num_workers=0,
                                                 pin_memory=True)
 
-    val_dataset_rgb = Dataset(train_split, 'test', root, 'rgb', test_transforms)
-    val_dataloader_rgb = torch.utils.data.DataLoader(val_dataset_rgb, batch_size=1, num_workers=2,
+    val_dataset = Dataset(train_split, 'test', root, test_transforms)
+    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=1, num_workers=2,
                                                 pin_memory=False)
 
-    #Flow data stream
-    dataset_flow = Dataset(train_split, 'train', root, 'flow', train_transforms)
-    dataloader_flow = torch.utils.data.DataLoader(dataset_flow, batch_size=1, num_workers=0,
-                                                pin_memory=True)
-    
-    val_dataset_flow = Dataset(train_split, 'test', root, 'flow', test_transforms)
-    val_dataloader_flow = torch.utils.data.DataLoader(val_dataset_flow, batch_size=1, num_workers=2,
-                                                pin_memory=False)
+    dataloaders_rgb = {'train': dataloader, 'test': val_dataloader}
+    dataloaders_flow = {'train': dataloader, 'test': val_dataloader}
 
-    dataloaders_rgb = {'train': dataloader_rgb, 'test': val_dataloader_rgb}
-    dataloaders_flow = {'train': dataloader_flow, 'test': val_dataloader_flow}
-
-    num_classes = dataset_rgb.num_classes
+    num_classes = dataset.num_classes
     
     #load models
     i3d_flow = InceptionI3d(400, in_channels=2)
