@@ -84,9 +84,10 @@ def run(configs,
     else:
         print("load weights {}".format(weights))
         weights = torch.load(weights)
-        i3d_rgb.load_state_dict(weights['rgb'])
-        i3d_flow.load_state_dict(weights['flow'])
-        mlp.load_state_dict(weights['mlp'])
+        print(weights)
+        i3d_rgb.load_state_dict(weights['rgb'], strict=False)
+        i3d_flow.load_state_dict(weights['flow'], strict=False)
+        mlp.load_state_dict(weights['mlp'], strict=False)
 
         #continue write files
         #load the last epoch
