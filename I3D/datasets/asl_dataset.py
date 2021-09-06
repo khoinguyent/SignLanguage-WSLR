@@ -17,7 +17,7 @@ def make_dataset(path, split, num_classes):
 
     #each word has 5 signers, each signer records 5 videos
     for video in videos:
-        prefix = int((video.split(".")[0]).split('-')[0])
+        prefix = int((video.split(".")[0]).split('_')[0])
         end = (video.split(".")[0]).split("_")[-1]
 
         if split == 'train' and end in ('003', '004') and prefix > 10:
