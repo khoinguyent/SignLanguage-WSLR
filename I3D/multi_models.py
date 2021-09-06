@@ -20,6 +20,7 @@ from pytorch_mlp import MLP
 
 # from datasets.nslt_dataset import NSLT as Dataset
 from datasets.nslt_dataset_multi import NSLT as Dataset
+from datasets.asl_dataset import ASL as ASL_Dataset
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = '0'
@@ -38,7 +39,8 @@ def run(configs,
         root='/ssd/Charades_v1_rgb',
         train_split='charades/charades.json',
         save_model='',
-        weights=None):
+        weights=None,
+        dataset = 'WLASL'):
     print(configs)
 
     # setup dataset
@@ -46,14 +48,33 @@ def run(configs,
                                             videotransforms.RandomHorizontalFlip(), ])
     test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
-    #RGB data stream
-    dataset = Dataset(train_split, 'train', root, train_transforms)
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, num_workers=0, shuffle=True,
-                                                pin_memory=True)
+    dataset = None
+    dataloader = None
+    val_dataset = None
+    val_dataloader = None
 
-    val_dataset = Dataset(train_split, 'test', root, test_transforms)
-    val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=1, num_workers=2, shuffle=True,
-                                                pin_memory=False)
+    prefix = ''
+    if(dataset == 'WLASL'):
+    #RGB data stream
+        dataset = Dataset(train_split, 'train', root, train_transforms)
+        dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, num_workers=0, shuffle=True,
+                                                    pin_memory=True)
+
+        val_dataset = Dataset(train_split, 'test', root, test_transforms)
+        val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=1, num_workers=2, shuffle=True,
+                                                    pin_memory=False)
+
+        prefix = 'nslt_'
+    elif(dataset == 'ASL'):
+        dataset = ASL_Dataset(train_split, 'train', train_transforms)
+        dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, num_workers=0, shuffle=True,
+                                                    pin_memory=True)
+
+        val_dataset = ASL_Dataset(train_split, 'test', test_transforms)
+        val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=1, num_workers=2, shuffle=True,
+                                                    pin_memory=False)
+
+        prefix = 'asl_'
 
     dataloaders = {'train': dataloader, 'test': val_dataloader}
 
@@ -75,10 +96,10 @@ def run(configs,
     last_epoch = 0
     #load weights
     if(weights == None):
-        if(os.path.exists("logs.csv")):
-            os.remove("logs.csv")
+        if(os.path.exists(prefix + "logs.csv")):
+            os.remove(prefix + "logs.csv")
 
-        with open ("logs.csv",'a') as logs:
+        with open (prefix + "logs.csv",'a') as logs:
             line = 'epoch\tacc_train\ttot_loss_train\tacc_val\ttotal_loss_train\n'
             logs.writelines(line)
     else:
@@ -242,7 +263,7 @@ def run(configs,
                 val_score = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
                 if val_score > best_val_score or epoch % 2 == 0:
                     best_val_score = val_score
-                    model_name = save_model + "nslt_" + str(num_classes) + "_" + str(steps).zfill(
+                    model_name = save_model + prefix + str(num_classes) + "_" + str(steps).zfill(
                                 6) + '_%3f.pt' % val_score
 
                     torch.save({
@@ -265,7 +286,7 @@ def run(configs,
                 scheduler.step(tot_loss * num_steps_per_update / num_iter)
             
 
-        with open ("logs.csv",'a') as logs:
+        with open (prefix + "logs.csv",'a') as logs:
             line = '{}\t{}\t{}\t{}\t{}\n'.format(epoch + last_epoch, acc_train, tot_loss_train, acc_val, tot_loss_val)
             logs.writelines(line)
 
@@ -278,6 +299,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_class', type=int, default=2000)
     parser.add_argument('--config', type=str, default='configfiles/asl2000.ini')
     parser.add_argument('--train_split', type=str, default='preprocess/nslt_2000.json')
+    parser.add_argument('--dataset', type=str, default='WLASL')
 
     args = parser.parse_args()
 
@@ -288,6 +310,7 @@ if __name__ == '__main__':
     num_class = args.num_class
     config_file = args.config
     train_split = args.train_split
+    dataset = args.dataset
 
     # WLASL setting
     # mode = 'rgb'
@@ -302,4 +325,4 @@ if __name__ == '__main__':
 
     configs = Config(config_file)
     print(root, train_split)
-    run(configs=configs, mode=mode, root=root, save_model=save_model, train_split=train_split, weights=weights)
+    run(configs=configs, mode=mode, root=root, save_model=save_model, train_split=train_split, weights=weights, dataset=dataset)

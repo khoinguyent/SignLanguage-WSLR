@@ -280,13 +280,13 @@ def make_dataset(split_file, split, root, num_classes):
 
         num_frames = int(cv2.VideoCapture(video_path).get(cv2.CAP_PROP_FRAME_COUNT))
 
-        num_for_flow = num_frames // 2
+        # num_for_flow = num_frames // 2
 
-        if num_for_flow - 0 < 9:
-            print("Skip video ", vid)
-            isKeep = False
-            count_skipping += 1
-            continue
+        # if num_for_flow - 0 < 9:
+        #     print("Skip video ", vid)
+        #     isKeep = False
+        #     count_skipping += 1
+        #     continue
 
         label = np.zeros((num_classes, num_frames), np.float32)
 
