@@ -30,7 +30,7 @@ def make_dataset(path, split, num_classes):
         label = np.zeros((num_classes, num_frames), np.float32)
 
         for l in range(num_frames):
-            c_ = int((video.split(".")[0]).split("_")[0])
+            c_ = int((video.split(".")[0]).split("_")[0]) - 1
             label[c_][l] = 1
         
         dataset.append((video, label, 0, 0, num_frames))
