@@ -8,7 +8,7 @@ import random
 import torch
 
 def get_num_class():
-    return 64
+    return 10
 
 def make_dataset(path, split, num_classes):
     dataset = []
@@ -17,11 +17,12 @@ def make_dataset(path, split, num_classes):
 
     #each word has 5 signers, each signer records 5 videos
     for video in videos:
-        name = (video.split(".")[0]).split("_")[-1]
+        prefix = int((video.split(".")[0]).split('-')[0])
+        end = (video.split(".")[0]).split("_")[-1]
 
-        if split == 'train' and name in ('003', '004'):
+        if split == 'train' and end in ('003', '004') and prefix > 10:
             continue
-        if split == 'test' and name not in ('003', '004'):
+        if split == 'test' and end not in ('003', '004') and prefix > 10:
             continue
         
         video_path = os.path.join(path, video)
@@ -30,7 +31,7 @@ def make_dataset(path, split, num_classes):
         label = np.zeros((num_classes, num_frames), np.float32)
 
         for l in range(num_frames):
-            c_ = int((video.split(".")[0]).split("_")[0]) - 1
+            c_ = prefix - 1
             label[c_][l] = 1
         
         dataset.append((video, label, 0, 0, num_frames))
@@ -38,8 +39,8 @@ def make_dataset(path, split, num_classes):
     return dataset
 
 class ASL(data_utl.Dataset):
-    def __init__(self, path, split, transforms=None):
-        self.num_classes = get_num_class()
+    def __init__(self, path, split, num_classes, transforms=None):
+        self.num_classes = num_classes
         self.data = make_dataset(path, split, num_classes=self.num_classes)
         self.transforms = transforms
         self.path = path
