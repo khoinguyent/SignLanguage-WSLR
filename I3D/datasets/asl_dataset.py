@@ -20,9 +20,12 @@ def make_dataset(path, split, num_classes):
         prefix = int((video.split(".")[0]).split('_')[0])
         end = (video.split(".")[0]).split("_")[-1]
 
-        if split == 'train' and end in ('003', '004') and prefix > 10:
+        if prefix > 10:
             continue
-        if split == 'test' and end not in ('003', '004') and prefix > 10:
+
+        if split == 'train' and end in ('003', '004'):
+            continue
+        if split == 'test' and end not in ('003', '004'):
             continue
         
         video_path = os.path.join(path, video)
