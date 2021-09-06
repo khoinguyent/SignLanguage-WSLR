@@ -37,7 +37,7 @@ def make_dataset(path, split, num_classes):
     
     return dataset
 
-class ALS(data_utl.Dataset):
+class ASL(data_utl.Dataset):
     def __init__(self, path, split, transforms=None):
         self.num_classes = get_num_class()
 
