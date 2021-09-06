@@ -40,7 +40,7 @@ def run(configs,
         train_split='charades/charades.json',
         save_model='',
         weights=None,
-        dataset = 'WLASL'):
+        dataset_name = 'WLASL'):
     print(configs)
 
     # setup dataset
@@ -55,7 +55,7 @@ def run(configs,
 
     prefix = ''
 
-    if(dataset == 'WLASL'):
+    if(dataset_name == 'WLASL'):
     #RGB data stream
         dataset = Dataset(train_split, 'train', root, train_transforms)
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, num_workers=0, shuffle=True,
@@ -66,7 +66,8 @@ def run(configs,
                                                     pin_memory=False)
 
         prefix = 'nslt_'
-    elif(dataset == 'ASL'):
+
+    elif(dataset_name == 'ASL'):
         print('ASL dataset')
         dataset = ASL_Dataset(root, 'train', 10, train_transforms)
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, num_workers=0, shuffle=True,
@@ -301,7 +302,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_class', type=int, default=2000)
     parser.add_argument('--config', type=str, default='configfiles/asl2000.ini')
     parser.add_argument('--train_split', type=str, default='preprocess/nslt_2000.json')
-    parser.add_argument('--dataset', type=str, default='WLASL')
+    parser.add_argument('--dataset_name', type=str, default='WLASL')
 
     args = parser.parse_args()
 
@@ -312,7 +313,7 @@ if __name__ == '__main__':
     num_class = args.num_class
     config_file = args.config
     train_split = args.train_split
-    dataset = args.dataset
+    dataset_name = args.dataset_name
 
     # WLASL setting
     # mode = 'rgb'
@@ -327,4 +328,4 @@ if __name__ == '__main__':
 
     configs = Config(config_file)
     print(root, train_split)
-    run(configs=configs, mode=mode, root=root, save_model=save_model, train_split=train_split, weights=weights, dataset=dataset)
+    run(configs=configs, mode=mode, root=root, save_model=save_model, train_split=train_split, weights=weights, dataset_name=dataset_name)
