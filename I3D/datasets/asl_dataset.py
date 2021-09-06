@@ -40,7 +40,6 @@ def make_dataset(path, split, num_classes):
 class ASL(data_utl.Dataset):
     def __init__(self, path, split, transforms=None):
         self.num_classes = get_num_class()
-
         self.data = make_dataset(path, split, num_classes=self.num_classes)
         self.transforms = transforms
         self.path = path
@@ -78,6 +77,9 @@ class ASL(data_utl.Dataset):
 
         return ret_img, ret_lab, vid
     
+    def __len__(self):
+        return len(self.data)
+        
     def pad(self, imgs, label, total_frames):
         if imgs.shape[0] < total_frames:
             num_padding = total_frames - imgs.shape[0]
