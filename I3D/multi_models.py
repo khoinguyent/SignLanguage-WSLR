@@ -69,11 +69,11 @@ def run(configs,
 
     elif(dataset_name == 'ASL'):
         print('ASL dataset')
-        dataset = ASL_Dataset(root, 'train', 10, train_transforms)
+        dataset = ASL_Dataset(root, 'train', int(train_split), train_transforms)
         dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, num_workers=0, shuffle=True,
                                                     pin_memory=True)
 
-        val_dataset = ASL_Dataset(root, 'test', 10, test_transforms)
+        val_dataset = ASL_Dataset(root, 'test', int(train_split), test_transforms)
         val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=1, num_workers=2, shuffle=True,
                                                     pin_memory=False)
 
