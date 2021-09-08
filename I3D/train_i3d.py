@@ -181,7 +181,6 @@ def run(configs,
                         acc = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
                         print(
                             'Epoch {} Video #{} {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(epoch,
-                                                                                                                 process_video_num,
                                                                                                                  phase,
                                                                                                                  tot_loc_loss / (10 * num_steps_per_update),
                                                                                                                  tot_cls_loss / (10 * num_steps_per_update),
@@ -223,7 +222,7 @@ if __name__ == '__main__':
     parser.add_argument('--num_class', type=int, default=2000)
     parser.add_argument('--config', type=str, default='configfiles/asl2000.ini')
     parser.add_argument('--train_split', type=str, default='preprocess/nslt_2000.json')
-
+    ############ rNuddksfsdjhgdfkhgsejkfsdhjkfghj
     args = parser.parse_args()
 
     mode = args.mode
