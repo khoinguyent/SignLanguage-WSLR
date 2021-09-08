@@ -94,7 +94,6 @@ def make_dataset(split_file, split, root, mode, num_classes):
     with open(split_file, 'r') as f:
         data = json.load(f)
 
-    print('data len make dataset:', len(data))
     i = 0
     count_skipping = 0
     for vid in data.keys():
@@ -135,7 +134,6 @@ def make_dataset(split_file, split, root, mode, num_classes):
 
         i += 1
     print("Skipped videos: ", count_skipping)
-    print(len(dataset))
     return dataset
 
 

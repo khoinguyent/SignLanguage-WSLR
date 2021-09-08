@@ -49,6 +49,7 @@ def run(configs,
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=configs.batch_size, shuffle=True, num_workers=0,
                                              pin_memory=True)
 
+    print(len(dataset))
     val_dataset = Dataset(train_split, 'test', root, mode, test_transforms)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=configs.batch_size, shuffle=True, num_workers=2,
                                                  pin_memory=False)
