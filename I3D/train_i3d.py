@@ -132,8 +132,8 @@ def run(configs,
             for data in dataloaders[phase]:
                 num_iter += 1
                 # get the inputs
-                if data[0] == -1: # bracewell does not compile opencv with ffmpeg, strange errors occur resulting in no video loaded
-                    continue
+                #if data[0] == -1: # bracewell does not compile opencv with ffmpeg, strange errors occur resulting in no video loaded
+                #    continue*/
 
                 # inputs, labels, vid, src = data
                 inputs, labels, vid = data
