@@ -100,6 +100,5 @@ def run(video_path, num_classes, weights):
     outputs = torch.transpose(outputs, 1, 2)
 
     predictions = torch.max(outputs, dim=2)[0]
-    print(predictions)
 
 
