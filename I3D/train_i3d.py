@@ -10,11 +10,10 @@ from torch.optim.lr_scheduler import StepLR, MultiStepLR
 
 from torchvision import transforms
 import videotransforms
-import pandas as pd
 
 import numpy as np
 
-from config import Config
+from configs import Config
 from pytorch_i3d import InceptionI3d
 
 # from datasets.nslt_dataset import NSLT as Dataset
@@ -23,7 +22,13 @@ from datasets.nslt_dataset import NSLT as Dataset
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = '0'
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-mode', type=str, help='rgb or flow')
+parser.add_argument('-save_model', type=str)
+parser.add_argument('-root', type=str)
+parser.add_argument('--num_class', type=int)
 
+args = parser.parse_args()
 
 torch.manual_seed(0)
 np.random.seed(0)
@@ -49,7 +54,6 @@ def run(configs,
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=configs.batch_size, shuffle=True, num_workers=0,
                                              pin_memory=True)
 
-    print(len(dataset))
     val_dataset = Dataset(train_split, 'test', root, mode, test_transforms)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=configs.batch_size, shuffle=True, num_workers=2,
                                                  pin_memory=False)
@@ -68,24 +72,31 @@ def run(configs,
     num_classes = dataset.num_classes
     i3d.replace_logits(num_classes)
 
-    #remove log files when train from begini
-    if(weights == None):
-      if(os.path.exists("logs.csv")):
-          os.remove("logs.csv")
-
-      with open ("logs.csv",'a') as logs:
-          line = 'epoch\tacc_train\ttot_loss_train\tacc_val\ttotal_loss_train\n'
-          logs.writelines(line)
-
-    last_epoch = 0
     if weights:
         print('loading weights {}'.format(weights))
         i3d.load_state_dict(torch.load(weights))
 
+    last_epoch = 0
+    #load weights
+    prefix = "nlst_"
+    log_file = prefix + num_classes + "_log.csv"
+    if(weights == None):
+        if(os.path.exists(log_file)):
+            os.remove(log_file)
+
+        with open (log_file,'a') as logs:
+            line = 'epoch\tacc_train\ttot_loss_train\tacc_val\ttotal_loss_train\n'
+            logs.writelines(line)
+    else:
+        print("load weights {}".format(weights))
+        weights = torch.load(weights)
+        print(weights)
+        i3d.load_state_dict(weights)
+
+        #continue write files
         #load the last epoch
         load_logs_data = pd.read_csv("logs.csv", sep='\t', engine='python')
         last_epoch = int(load_logs_data.tail(1).values.tolist()[0][0])
-
     i3d.cuda()
     i3d = nn.DataParallel(i3d)
 
@@ -97,14 +108,13 @@ def run(configs,
     steps = 0
     epoch = 0
 
+    best_val_score = 0
+
     acc_train = 0.0
     tot_loss_train = 0.0
 
     acc_val = 0.0
     tot_loss_val = 0.0
-    
-
-    best_val_score = 0
     # train it
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=5, factor=0.3)
     while steps < configs.max_steps and epoch < 400:  # for epoch in range(num_epochs):
@@ -132,12 +142,12 @@ def run(configs,
             for data in dataloaders[phase]:
                 num_iter += 1
                 # get the inputs
-                #if data[0] == -1: # bracewell does not compile opencv with ffmpeg, strange errors occur resulting in no video loaded
-                #    continue*/
+                if data == -1: # bracewell does not compile opencv with ffmpeg, strange errors occur resulting in no video loaded
+                    continue
 
                 # inputs, labels, vid, src = data
                 inputs, labels, vid = data
-                
+
                 # wrap them in Variable
                 inputs = inputs.cuda()
                 t = inputs.size(2)
@@ -180,18 +190,18 @@ def run(configs,
                     if steps % 10 == 0:
                         acc = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
                         print(
-                            'Epoch {} Video #{} {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(epoch,
+                            'Epoch {} {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(epoch,
                                                                                                                  phase,
                                                                                                                  tot_loc_loss / (10 * num_steps_per_update),
                                                                                                                  tot_cls_loss / (10 * num_steps_per_update),
                                                                                                                  tot_loss / 10,
                                                                                                                  acc))
-                        tot_loss = tot_loc_loss = tot_cls_loss = 0.        
+                        tot_loss = tot_loc_loss = tot_cls_loss = 0.
             if phase == 'test':
                 val_score = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
                 if val_score > best_val_score or epoch % 2 == 0:
                     best_val_score = val_score
-                    model_name = save_model + "nslt_" + str(num_classes) + "_" + str(epoch + last_epoch).zfill(
+                    model_name = save_model + "nslt_" + str(num_classes) + "_" + str(steps).zfill(
                                    6) + '_%3f.pt' % val_score
 
                     torch.save(i3d.module.state_dict(), model_name)
@@ -207,42 +217,22 @@ def run(configs,
                 tot_loss_val = (tot_loss * num_steps_per_update) / num_iter
                 scheduler.step(tot_loss * num_steps_per_update / num_iter)
         
-        #print()
-        #write log
-        with open ("logs.csv",'a') as logs:
+        with open (prefix + "logs.csv",'a') as logs:
             line = '{}\t{}\t{}\t{}\t{}\n'.format(epoch + last_epoch, acc_train, tot_loss_train, acc_val, tot_loss_val)
             logs.writelines(line)
 
+
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', type=str, help='rgb or flow', default='rgb')
-    parser.add_argument('--weights', type=str, default=None)
-    parser.add_argument('--save_model', type=str, default='checkpoints/')
-    parser.add_argument('--root', type=str, default={'word': '../data/WLASL2000'})
-    parser.add_argument('--num_class', type=int, default=2000)
-    parser.add_argument('--config', type=str, default='configfiles/asl2000.ini')
-    parser.add_argument('--train_split', type=str, default='preprocess/nslt_2000.json')
-    ############ rNuddksfsdjhgdfkhgsejkfsdhjkfghj
-    args = parser.parse_args()
-
-    mode = args.mode
-    root = args.root
-    weights = args.weights
-    save_model = args.save_model
-    num_class = args.num_class
-    config_file = args.config
-    train_split = args.train_split
-
     # WLASL setting
-    # mode = 'rgb'
-    # root = {'word': '../../data/WLASL2000'}
+    mode = 'rgb'
+    root = {'word': '../../data/WLASL2000'}
 
-    # save_model = 'checkpoints/'
-    # train_split = 'preprocess/nslt_2000.json'
+    save_model = 'checkpoints/'
+    train_split = 'preprocess/nslt_2000.json'
 
     # weights = 'archived/asl2000/FINAL_nslt_2000_iters=5104_top1=32.48_top5=57.31_top10=66.31.pt'
-    # weights = None
-    # config_file = 'configfiles/asl2000.ini'
+    weights = None
+    config_file = 'configfiles/asl2000.ini'
 
     configs = Config(config_file)
     print(root, train_split)

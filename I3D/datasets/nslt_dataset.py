@@ -8,86 +8,7 @@ import cv2
 import numpy as np
 import torch
 import torch.utils.data as data_utl
-
-
-def video_to_tensor(pic):
-    """Convert a ``numpy.ndarray`` to tensor.
-    Converts a numpy.ndarray (T x H x W x C)
-    to a torch.FloatTensor of shape (C x T x H x W)
-    
-    Args:
-         pic (numpy.ndarray): Video to be converted to tensor.
-    Returns:
-         Tensor: Converted video.
-    """
-    return torch.from_numpy(pic.transpose([3, 0, 1, 2]))
-
-
-def load_rgb_frames(image_dir, vid, start, num):
-    frames = []
-    for i in range(start, start + num):
-        try:
-            img = cv2.imread(os.path.join(image_dir, vid, "image_" + str(i).zfill(5) + '.jpg'))[:, :, [2, 1, 0]]
-        except:
-            print(os.path.join(image_dir, vid, str(i).zfill(6) + '.jpg'))
-        w, h, c = img.shape
-        if w < 226 or h < 226:
-            d = 226. - min(w, h)
-            sc = 1 + d / min(w, h)
-            img = cv2.resize(img, dsize=(0, 0), fx=sc, fy=sc)
-        img = (img / 255.) * 2 - 1
-        frames.append(img)
-    return np.asarray(frames, dtype=np.float32)
-
-
-def load_rgb_frames_from_video(vid_root, vid, start, num, resize=(256, 256)):
-    video_path = os.path.join(vid_root, vid + '.mp4')
-
-    vidcap = cv2.VideoCapture(video_path)
-
-    frames = []
-
-    total_frames = vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
-
-    vidcap.set(cv2.CAP_PROP_POS_FRAMES, start)
-    for offset in range(min(num, int(total_frames - start))):
-        success, img = vidcap.read()
-
-        w, h, c = img.shape
-        if w < 226 or h < 226:
-            d = 226. - min(w, h)
-            sc = 1 + d / min(w, h)
-            img = cv2.resize(img, dsize=(0, 0), fx=sc, fy=sc)
-
-        if w > 256 or h > 256:
-            img = cv2.resize(img, (math.ceil(w * (256 / w)), math.ceil(h * (256 / h))))
-
-        img = (img / 255.) * 2 - 1
-
-        frames.append(img)
-
-    return np.asarray(frames, dtype=np.float32)
-
-
-def load_flow_frames(image_dir, vid, start, num):
-    frames = []
-    for i in range(start, start + num):
-        imgx = cv2.imread(os.path.join(image_dir, vid, vid + '-' + str(i).zfill(6) + 'x.jpg'), cv2.IMREAD_GRAYSCALE)
-        imgy = cv2.imread(os.path.join(image_dir, vid, vid + '-' + str(i).zfill(6) + 'y.jpg'), cv2.IMREAD_GRAYSCALE)
-
-        w, h = imgx.shape
-        if w < 224 or h < 224:
-            d = 224. - min(w, h)
-            sc = 1 + d / min(w, h)
-            imgx = cv2.resize(imgx, dsize=(0, 0), fx=sc, fy=sc)
-            imgy = cv2.resize(imgy, dsize=(0, 0), fx=sc, fy=sc)
-
-        imgx = (imgx / 255.) * 2 - 1
-        imgy = (imgy / 255.) * 2 - 1
-        img = np.asarray([imgx, imgy]).transpose([1, 2, 0])
-        frames.append(img)
-    return np.asarray(frames, dtype=np.float32)
-
+from videoprocessing import VideoProcessing as vp
 
 def make_dataset(split_file, split, root, mode, num_classes):
     dataset = []
@@ -112,14 +33,6 @@ def make_dataset(split_file, split, root, mode, num_classes):
             continue
 
         num_frames = int(cv2.VideoCapture(video_path).get(cv2.CAP_PROP_FRAME_COUNT))
-
-        if mode == 'flow':
-            num_frames = num_frames // 2
-
-        if num_frames - 0 < 9:
-            print("Skip video ", vid)
-            count_skipping += 1
-            continue
 
         label = np.zeros((num_classes, num_frames), np.float32)
 
@@ -177,14 +90,18 @@ class NSLT(data_utl.Dataset):
         except ValueError:
             start_f = start_frame
 
-        imgs = load_rgb_frames_from_video(self.root['word'], vid, start_f, total_frames)
+        if(self.mode == 'rgb'):
+            imgs = vp.load_rgb_frames_from_video(self.root['word'], vid, start_f, total_frames)
+        
+        if(self.mode == 'flow'):
+            imgs = vp.load_flow_frames_upd(self.root['word'], vid, start_f, total_frames)
 
         imgs, label = self.pad(imgs, label, total_frames)
 
         imgs = self.transforms(imgs)
 
         ret_lab = torch.from_numpy(label)
-        ret_img = video_to_tensor(imgs)
+        ret_img = vp.video_to_tensor(imgs)
 
         return ret_img, ret_lab, vid
 
