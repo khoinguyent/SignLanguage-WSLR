@@ -223,16 +223,37 @@ def run(configs,
 
 
 if __name__ == '__main__':
-    # WLASL setting
-    mode = 'rgb'
-    root = {'word': '../../data/WLASL2000'}
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--mode', type=str, help='rgb or flow', default='rgb')
+    parser.add_argument('--weights', type=str, default=None)
+    parser.add_argument('--save_model', type=str, default='checkpoints/')
+    parser.add_argument('--root', type=str, default={'word': '../data/WLASL2000'})
+    parser.add_argument('--num_class', type=int, default=2000)
+    parser.add_argument('--config', type=str, default='configfiles/asl2000.ini')
+    parser.add_argument('--train_split', type=str, default='preprocess/nslt_2000.json')
+    parser.add_argument('--dataset_name', type=str, default='WLASL')
 
-    save_model = 'checkpoints/'
-    train_split = 'preprocess/nslt_2000.json'
+    args = parser.parse_args()
+
+    mode = args.mode
+    root = args.root
+    weights = args.weights
+    save_model = args.save_model
+    num_class = args.num_class
+    config_file = args.config
+    train_split = args.train_split
+    dataset_name = args.dataset_name
+
+    # WLASL setting
+    # mode = 'rgb'
+    # root = {'word': '../../data/WLASL2000'}
+
+    # save_model = 'checkpoints/'
+    # train_split = 'preprocess/nslt_2000.json'
 
     # weights = 'archived/asl2000/FINAL_nslt_2000_iters=5104_top1=32.48_top5=57.31_top10=66.31.pt'
-    weights = None
-    config_file = 'configfiles/asl2000.ini'
+    # weights = None
+    # config_file = 'configfiles/asl2000.ini'
 
     configs = Config(config_file)
     print(root, train_split)
