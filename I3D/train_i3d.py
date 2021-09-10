@@ -209,7 +209,7 @@ def run(configs,
                 tot_loss_val = (tot_loss * num_steps_per_update) / num_iter
                 scheduler.step(tot_loss * num_steps_per_update / num_iter)
         
-        with open (prefix + "logs.csv",'a') as logs:
+        with open (log_file,'a') as logs:
             line = '{}\t{}\t{}\t{}\t{}\n'.format(epoch + last_epoch, acc_train, tot_loss_train, acc_val, tot_loss_val)
             logs.writelines(line)
 
