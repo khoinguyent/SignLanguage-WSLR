@@ -277,7 +277,7 @@ def run(configs,
 
                     print(model_name)
                 
-                    print('VALIDATION: {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(phase,
+                print('VALIDATION: {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(phase,
                                                                                                         tot_loc_loss / num_iter,
                                                                                                         tot_cls_loss / num_iter,
                                                                                                         (tot_loss * num_steps_per_update) / num_iter,
