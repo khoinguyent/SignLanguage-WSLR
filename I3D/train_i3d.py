@@ -71,7 +71,7 @@ def run(configs,
     last_epoch = 0
     #load weights
     prefix = "nlst_"
-    log_file = prefix + str(num_classes) + "_log.csv"
+    log_file = prefix + mode + "_" + str(num_classes) + "_log.csv"
     if(weights == None):
         if(os.path.exists(log_file)):
             os.remove(log_file)
