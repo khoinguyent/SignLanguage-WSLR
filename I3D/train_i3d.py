@@ -166,8 +166,8 @@ def run(configs,
 
                 loss = (0.5 * loc_loss + 0.5 * cls_loss) / num_steps_per_update
                 tot_loss += loss.data.item()
-                if num_iter == num_steps_per_update // 2:
-                    print(epoch, steps, loss.data.item())
+                #if num_iter == num_steps_per_update // 2:
+                #    print(epoch, steps, loss.data.item())
                 loss.backward()
 
                 acc_train = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
@@ -189,18 +189,18 @@ def run(configs,
                                                                                                                  tot_loss / 10,
                                                                                                                  acc))
                         tot_loss = tot_loc_loss = tot_cls_loss = 0.
-            if phase == 'test':
-                val_score = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
-                if val_score > best_val_score or epoch % 2 == 0:
-                    best_val_score = val_score
-                    model_name = save_model + "nslt_" + str(num_classes) + "_" + str(steps).zfill(
-                                   6) + '_%3f.pt' % val_score
+                if phase == 'test':
+                    val_score = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
+                    if val_score > best_val_score or epoch % 2 == 0:
+                        best_val_score = val_score
+                        model_name = save_model + "nslt_" + str(num_classes) + "_" + str(steps).zfill(
+                                    6) + '_%3f.pt' % val_score
 
-                    torch.save(i3d.module.state_dict(), model_name)
-                    print(model_name)
+                        torch.save(i3d.module.state_dict(), model_name)
+                        print(model_name)
 
-                print('VALIDATION: {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(phase,
-                                                                                                              tot_loc_loss / num_iter,
+                    print('VALIDATION: {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(phase,
+                                                                                                                tot_loc_loss / num_iter,
                                                                                                               tot_cls_loss / num_iter,
                                                                                                               (tot_loss * num_steps_per_update) / num_iter,
                                                                                                               val_score
