@@ -189,22 +189,25 @@ def run(configs,
                                                                                                                  tot_loss / 10,
                                                                                                                  acc))
                         tot_loss = tot_loc_loss = tot_cls_loss = 0.
-                if phase == 'test':
-                    val_score = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
-                    if val_score > best_val_score or epoch % 2 == 0:
-                        best_val_score = val_score
-                        model_name = save_model + "nslt_" + str(num_classes) + "_" + str(steps).zfill(
-                                    6) + '_%3f.pt' % val_score
+            if phase == 'test':
+                if not os.path.exists(os.path.join(os.getcwd(), save_model)):
+                    os.mkdir(os.path.join(os.getcwd(), save_model))
 
-                        torch.save(i3d.module.state_dict(), model_name)
-                        print(model_name)
+                val_score = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
+                if val_score > best_val_score or epoch % 2 == 0:
+                    best_val_score = val_score
+                    model_name = save_model + "nslt_" + str(num_classes) + "_" + str(steps).zfill(
+                                6) + '_%3f.pt' % val_score
 
-                    print('VALIDATION: {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(phase,
-                                                                                                                tot_loc_loss / num_iter,
-                                                                                                              tot_cls_loss / num_iter,
-                                                                                                              (tot_loss * num_steps_per_update) / num_iter,
-                                                                                                              val_score
-                                                                                                              ))
+                    torch.save(i3d.module.state_dict(), model_name)
+                    
+
+                print('VALIDATION: {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(phase,
+                                                                                                            tot_loc_loss / num_iter,
+                                                                                                            tot_cls_loss / num_iter,
+                                                                                                            (tot_loss * num_steps_per_update) / num_iter,
+                                                                                                            val_score
+                                                                                                            ))
                 acc_val = val_score
                 tot_loss_val = (tot_loss * num_steps_per_update) / num_iter
                 scheduler.step(tot_loss * num_steps_per_update / num_iter)
