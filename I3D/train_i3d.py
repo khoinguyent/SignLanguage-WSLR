@@ -170,7 +170,7 @@ def run(configs,
                 #    print(epoch, steps, loss.data.item())
                 loss.backward()
 
-                acc_train = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
+                #acc_train = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
                 tot_loss_train = tot_loss / 10
 
                 if num_iter == num_steps_per_update and phase == 'train':
@@ -181,6 +181,7 @@ def run(configs,
                     # lr_sched.step()
                     if steps % 10 == 0:
                         acc = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
+                        acc_train = acc
                         print(
                             'Epoch {} {} Loc Loss: {:.4f} Cls Loss: {:.4f} Tot Loss: {:.4f} Accu :{:.4f}'.format(epoch,
                                                                                                                  phase,
