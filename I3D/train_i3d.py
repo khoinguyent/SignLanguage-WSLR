@@ -197,7 +197,7 @@ def run(configs,
                 val_score = float(np.trace(confusion_matrix)) / np.sum(confusion_matrix)
                 if val_score > best_val_score or epoch % 2 == 0:
                     best_val_score = val_score
-                    model_name = save_model + "nslt_" + str(num_classes) + "_" + str(steps).zfill(
+                    model_name = save_model + "nslt_" + mode + str(num_classes) + "_" + str(steps).zfill(
                                 6) + '_%3f.pt' % val_score
 
                     torch.save(i3d.module.state_dict(), model_name)
