@@ -87,7 +87,7 @@ def run(configs,
 
         #continue write files
         #load the last epoch
-        load_logs_data = pd.read_csv("logs.csv", sep='\t', engine='python')
+        load_logs_data = pd.read_csv(log_file, sep='\t', engine='python')
         last_epoch = int(load_logs_data.tail(1).values.tolist()[0][0])
     i3d.cuda()
     i3d = nn.DataParallel(i3d)
