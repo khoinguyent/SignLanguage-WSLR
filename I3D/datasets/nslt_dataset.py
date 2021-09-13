@@ -10,7 +10,7 @@ import torch
 import torch.utils.data as data_utl
 from videoprocessing import VideoProcessing as vp
 
-def make_dataset(split_file, split, root, mode, num_classes):
+def make_dataset(split_file, split, root, mode, num_classes, rate = 1):
     dataset = []
     with open(split_file, 'r') as f:
         data = json.load(f)
@@ -33,6 +33,8 @@ def make_dataset(split_file, split, root, mode, num_classes):
             continue
 
         num_frames = int(cv2.VideoCapture(video_path).get(cv2.CAP_PROP_FRAME_COUNT))
+
+        num_frames = num_frames // rate
 
         label = np.zeros((num_classes, num_frames), np.float32)
 
@@ -64,10 +66,11 @@ def get_num_class(split_file):
 
 class NSLT(data_utl.Dataset):
 
-    def __init__(self, split_file, split, root, mode, transforms=None):
+    def __init__(self, split_file, split, root, mode, transforms=None, rate=1):
         self.num_classes = get_num_class(split_file)
 
-        self.data = make_dataset(split_file, split, root, mode, num_classes=self.num_classes)
+        self.rate = rate
+        self.data = make_dataset(split_file, split, root, mode, num_classes=self.num_classes, rate = self.rate)
         self.split_file = split_file
         self.transforms = transforms
         self.mode = mode
@@ -94,7 +97,7 @@ class NSLT(data_utl.Dataset):
             imgs = vp.load_rgb_frames_from_video(self.root['word'], vid, start_f, total_frames)
         
         if(self.mode == 'flow'):
-            imgs = vp.load_flow_frames_upd(self.root['word'], vid, start_f, total_frames, 3)
+            imgs = vp.load_flow_frames_upd(self.root['word'], vid, start_f, total_frames, self.rate)
 
         imgs, label = self.pad(imgs, label, total_frames)
 

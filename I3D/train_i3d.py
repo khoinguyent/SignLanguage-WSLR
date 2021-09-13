@@ -34,7 +34,8 @@ def run(configs,
         root='/ssd/Charades_v1_rgb',
         train_split='charades/charades.json',
         save_model='',
-        weights=None):
+        weights=None,
+        rate=1):
     print(configs)
 
     # setup dataset
@@ -42,11 +43,11 @@ def run(configs,
                                            videotransforms.RandomHorizontalFlip(), ])
     test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
-    dataset = Dataset(train_split, 'train', root, mode, train_transforms)
+    dataset = Dataset(train_split, 'train', root, mode, train_transforms,rate)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=configs.batch_size, shuffle=True, num_workers=0,
                                              pin_memory=True)
 
-    val_dataset = Dataset(train_split, 'test', root, mode, test_transforms)
+    val_dataset = Dataset(train_split, 'test', root, mode, test_transforms,rate)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=configs.batch_size, shuffle=True, num_workers=2,
                                                  pin_memory=False)
 
@@ -228,6 +229,7 @@ if __name__ == '__main__':
     parser.add_argument('--config', type=str, default='configfiles/asl2000.ini')
     parser.add_argument('--train_split', type=str, default='preprocess/nslt_2000.json')
     parser.add_argument('--dataset_name', type=str, default='WLASL')
+    parser.add_argument('--rate', type=int, default=1)
 
     args = parser.parse_args()
 
@@ -239,6 +241,7 @@ if __name__ == '__main__':
     config_file = args.config
     train_split = args.train_split
     dataset_name = args.dataset_name
+    rate = args.rate
 
     # WLASL setting
     # mode = 'rgb'
@@ -253,4 +256,4 @@ if __name__ == '__main__':
 
     configs = Config(config_file)
     print(root, train_split)
-    run(configs=configs, mode=mode, root=root, save_model=save_model, train_split=train_split, weights=weights)
+    run(configs=configs, mode=mode, root=root, save_model=save_model, train_split=train_split, weights=weights, rate=rate)
