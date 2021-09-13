@@ -112,6 +112,7 @@ class NSLT(data_utl.Dataset):
         return len(self.data)
 
     def pad(self, imgs, label, total_frames):
+        print(imgs.shape)
         if imgs.shape[0] < total_frames:
             num_padding = total_frames - imgs.shape[0]
 
