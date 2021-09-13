@@ -139,7 +139,7 @@ class VideoProcessing():
         return np.asarray(frames, dtype=np.float32)
 
     @staticmethod
-    def load_flow_frames_upd(image_dir, vid, start, num):
+    def load_flow_frames_upd(image_dir, vid, start, num, rate = 1):
         video_path = ""
         if('.mp4' not in vid):
             video_path = os.path.join(image_dir, vid + '.mp4')
@@ -155,7 +155,7 @@ class VideoProcessing():
         prev_gray = []
         # i = 0
         vidcap.set(cv2.CAP_PROP_POS_FRAMES, start)
-        for offset in range(min(num, int(total_frames - start))):
+        for offset in range(start, min(num, int(total_frames - start)), rate):
             success, img = vidcap.read()
 
             w, h, c = img.shape
