@@ -36,6 +36,11 @@ def make_dataset(split_file, split, root, mode, num_classes, rate = 1):
 
         num_frames = num_frames // rate
 
+        if num_frames < 9:
+            print("Skip video ", vid)
+            count_skipping += 1
+            continue
+        
         label = np.zeros((num_classes, num_frames), np.float32)
 
         for l in range(num_frames):
