@@ -104,6 +104,7 @@ class NSLT(data_utl.Dataset):
         if(self.mode == 'flow'):
             imgs = vp.load_flow_frames_upd(self.root['word'], vid, start_f, total_frames, self.rate)
 
+        print(vid, imgs.share)
         imgs, label = self.pad(imgs, label, total_frames)
 
         imgs = self.transforms(imgs)
@@ -117,7 +118,6 @@ class NSLT(data_utl.Dataset):
         return len(self.data)
 
     def pad(self, imgs, label, total_frames):
-        print(imgs.shape)
         if imgs.shape[0] < total_frames:
             num_padding = total_frames - imgs.shape[0]
 
