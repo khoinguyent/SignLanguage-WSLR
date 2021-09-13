@@ -11,6 +11,7 @@ import torch.utils.data as data_utl
 from videoprocessing import VideoProcessing as vp
 
 def make_dataset(split_file, split, root, mode, num_classes, rate = 1):
+    print(rate)
     dataset = []
     with open(split_file, 'r') as f:
         data = json.load(f)
