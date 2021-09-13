@@ -104,7 +104,7 @@ class NSLT(data_utl.Dataset):
         if(self.mode == 'flow'):
             imgs = vp.load_flow_frames_upd(self.root['word'], vid, start_f, total_frames, self.rate)
 
-        print(vid, imgs.share)
+        print(vid, imgs.shape)
         imgs, label = self.pad(imgs, label, total_frames)
 
         imgs = self.transforms(imgs)
