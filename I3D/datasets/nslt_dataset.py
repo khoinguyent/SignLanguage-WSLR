@@ -98,14 +98,14 @@ class NSLT(data_utl.Dataset):
         except ValueError:
             start_f = start_frame
 
-        print('start frame: ', start_f)
+        #print('start frame: ', start_f)
         if(self.mode == 'rgb'):
             imgs = vp.load_rgb_frames_from_video(self.root['word'], vid, start_f, total_frames)
         
         if(self.mode == 'flow'):
             imgs = vp.load_flow_frames_upd(self.root['word'], vid, 0, total_frames, self.rate)
 
-        print(vid, imgs.shape)
+        #print(vid, imgs.shape)
         imgs, label = self.pad(imgs, label, total_frames)
 
         imgs = self.transforms(imgs)
