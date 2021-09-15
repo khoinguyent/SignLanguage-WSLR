@@ -189,25 +189,25 @@ class VideoProcessing():
                                                 0.5, 3, 15, 3, 5, 1.2, 0)
             #print('flow shape:', flow.shape)
             # Computes the magnitude and angle of the 2D vectors
-            magnitude, angle = cv2.cartToPolar(flow[..., 0], flow[..., 1])
+            #magnitude, angle = cv2.cartToPolar(flow[..., 0], flow[..., 1])
             #print('angle shape: ', angle.shape)
             #print(magnitude.shape)
             # Sets image hue according to the optical flow 
             # direction
             # o day ha
-            mask[..., 0] = angle * 180 / np.pi / 2
+            #mask[..., 0] = angle * 180 / np.pi / 2
             
             # Sets image value according to the optical flow
             # magnitude (normalized)
-            mask[..., 2] = cv2.normalize(magnitude, None, 0, 255, cv2.NORM_MINMAX)
+            #mask[..., 2] = cv2.normalize(magnitude, None, 0, 255, cv2.NORM_MINMAX)
 
             # Converts HSV to RGB (BGR) color representation
-            img_float32 = np.float32(mask)
+            #img_float32 = np.float32(mask)
             #lab_image = cv.cvtColor(img_float32, cv.COLOR_RGB2HSV)
-            rgb = cv2.cvtColor(img_float32, cv2.COLOR_HSV2BGR)
-            rgb = cv2.cvtColor(rgb, cv2.COLOR_BGR2GRAY)
-            rgb = np.asarray([rgb, prev_gray]).transpose([1, 2, 0])
-            prev_gray = img
-            frames.append(rgb)
+            #rgb = cv2.cvtColor(img_float32, cv2.COLOR_HSV2BGR)
+            #rgb = cv2.cvtColor(rgb, cv2.COLOR_BGR2GRAY)
+            #rgb = np.asarray([rgb, prev_gray]).transpose([1, 2, 0])
+            #prev_gray = img
+            frames.append(flow)
         
         return np.asarray(frames, dtype=np.float32)
