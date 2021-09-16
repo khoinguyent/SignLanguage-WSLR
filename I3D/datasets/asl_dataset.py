@@ -8,7 +8,7 @@ import random
 import torch
 
 def get_num_class():
-    return 10
+    return 64
 
 def make_dataset(path, split, num_classes):
     dataset = []
@@ -20,8 +20,8 @@ def make_dataset(path, split, num_classes):
         prefix = int((video.split(".")[0]).split('_')[0])
         end = (video.split(".")[0]).split("_")[-1]
 
-        if prefix > 10:
-            continue
+        #if prefix > 10:
+        #    continue
 
         if split == 'train' and end in ('003', '004'):
             continue
@@ -42,8 +42,9 @@ def make_dataset(path, split, num_classes):
     return dataset
 
 class ASL(data_utl.Dataset):
-    def __init__(self, path, split, num_classes, transforms=None):
+    def __init__(self, path, split, num_classes, mode, transforms=None):
         self.num_classes = num_classes
+        self.mode = mode
         self.data = make_dataset(path, split, num_classes=self.num_classes)
         self.transforms = transforms
         self.path = path
@@ -63,21 +64,20 @@ class ASL(data_utl.Dataset):
             start_f = random.randint(0, nf - total_frames - 1) + start_frame
         except ValueError:
             start_f = start_frame
-
-        imgs_rgb = vp.load_rgb_frames_from_video(self.path, vid, start_f, total_frames)
-        imgs_flow = vp.load_flow_frames_upd(self.path, vid, start_f, total_frames)
         
-        imgs_rgb, label = self.pad(imgs_rgb, label, total_frames)
-        imgs_flow, label = self.pad(imgs_flow, label, total_frames)
-        #print(imgs)
-        imgs_rgb = self.transforms(imgs_rgb)
-        imgs_flow = self.transforms(imgs_flow)
+        if(self.mode == 'rgb'):
+            imgs = vp.load_rgb_frames_from_video(self.path, vid, start_f, total_frames)
+        
+        if(self.mode == 'flow'):
+            imgs = vp.load_flow_frames_upd(self.path, vid, 0, total_frames, self.rate)
+
+        #print(vid, imgs.shape)
+        imgs, label = self.pad(imgs, label, total_frames)
+
+        imgs = self.transforms(imgs)
 
         ret_lab = torch.from_numpy(label)
-        ret_img = {
-            'rgb': vp.video_to_tensor(imgs_rgb),
-            'flow': vp.video_to_tensor(imgs_flow)
-        }
+        ret_img = vp.video_to_tensor(imgs)
 
         return ret_img, ret_lab, vid
     
