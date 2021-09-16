@@ -189,7 +189,7 @@ class VideoProcessing():
             #                                    None,
             #                                    0.5, 3, 15, 3, 5, 1.2, 0)
 
-            optical_flow = cv2.DualTVL1OpticalFlow_create()
+            optical_flow = cv2.optflow.createOptFlow_DualTVL1()
             flow = optical_flow.calc(prev_gray, img, None)
 
             #print('flow shape:', flow.shape)
