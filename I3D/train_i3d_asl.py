@@ -17,7 +17,7 @@ from config import Config
 from pytorch_i3d import InceptionI3d
 
 # from datasets.nslt_dataset import NSLT as Dataset
-from datasets.asl_dataset import NSLT as Dataset
+from datasets.asl_dataset import ASL as Dataset
 
 os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID"
 os.environ["CUDA_VISIBLE_DEVICES"] = '0'
@@ -43,11 +43,11 @@ def run(configs,
                                            videotransforms.RandomHorizontalFlip(), ])
     test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
-    dataset = Dataset(train_split, 'train', root, mode, train_transforms,rate)
+    dataset = Dataset(root, 'train', int(train_split), train_transforms)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=configs.batch_size, shuffle=True, num_workers=0,
                                              pin_memory=True)
 
-    val_dataset = Dataset(train_split, 'test', root, mode, test_transforms,rate)
+    val_dataset = Dataset(root, 'test', int(train_split), test_transforms)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=configs.batch_size, shuffle=True, num_workers=2,
                                                  pin_memory=False)
 
