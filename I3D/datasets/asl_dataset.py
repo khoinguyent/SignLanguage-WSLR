@@ -48,6 +48,7 @@ class ASL(data_utl.Dataset):
         self.data = make_dataset(path, split, num_classes=self.num_classes)
         self.transforms = transforms
         self.path = path
+        self.rate = rate
 
     def __getitem__(self, index):
         """
