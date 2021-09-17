@@ -216,3 +216,82 @@ class VideoProcessing():
             frames.append(flow)
         
         return np.asarray(frames, dtype=np.float32)
+
+
+    @staticmethod
+    def load_flow_frames_upd1(image_dir, vid, start, num, rate = 1):
+        video_path = ""
+        if('.mp4' not in vid):
+            video_path = os.path.join(image_dir, vid + '.mp4')
+        else:
+            video_path = os.path.join(image_dir, vid)#print(video_path)
+        vidcap = cv2.VideoCapture(video_path)
+
+        frames = []
+
+        total_frames = vidcap.get(cv2.CAP_PROP_FRAME_COUNT)
+        isFirst = True
+    
+        prev_gray = []
+        # i = 0
+        vidcap.set(cv2.CAP_PROP_POS_FRAMES, start)
+        for offset in range(start, min(num, int(total_frames - start)), rate):
+            success, img = vidcap.read()
+
+            w, h, c = img.shape
+            if w < 226 or h < 226:
+                d = 226. - min(w, h)
+                sc = 1 + d / min(w, h)
+                img = cv2.resize(img, dsize=(0, 0), fx=sc, fy=sc)
+
+            if w > 256 or h > 256:
+                img = cv2.resize(img, (math.ceil(w * (256 / w)), math.ceil(h * (256 / h))))
+
+            # if(i < 31):
+            #   cv2_imshow(img)
+
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+            if(isFirst):
+                prev_gray = img
+                mask = np.zeros((img.shape[0], img.shape[1],3))
+                # mask = mask[...,np.newaxis, np.newaxis, np.newaxis]
+                # mask = mask.reshape(img.shape[0], img.shape[1],3)
+                #print(mask.shape)
+                # Sets image saturation to maximum
+                mask[..., 1] = 255
+                isFirst = False
+                continue
+
+            # Calculates dense optical flow by Farneback method
+            
+            flow = cv2.calcOpticalFlowFarneback(prev_gray, img, 
+                                                None,
+                                                0.5, 3, 15, 3, 5, 1.2, 0)
+
+            #optical_flow = cv2.optflow.createOptFlow_DualTVL1()
+            #flow = optical_flow.calc(prev_gray, img, None)
+
+            #print('flow shape:', flow.shape)
+            # Computes the magnitude and angle of the 2D vectors
+            magnitude, angle = cv2.cartToPolar(flow[..., 0], flow[..., 1])
+            #print('angle shape: ', angle.shape)
+            #print(magnitude.shape)
+            # Sets image hue according to the optical flow 
+            # direction
+            mask[..., 0] = angle * 180 / np.pi / 2
+            
+            # Sets image value according to the optical flow
+            # magnitude (normalized)
+            mask[..., 2] = cv2.normalize(magnitude, None, 0, 255, cv2.NORM_MINMAX)
+
+            # Converts HSV to RGB (BGR) color representation
+            img_float32 = np.float32(mask)
+            #lab_image = cv.cvtColor(img_float32, cv.COLOR_RGB2HSV)
+            rgb = cv2.cvtColor(img_float32, cv2.COLOR_HSV2BGR)
+            #rgb = cv2.cvtColor(rgb, cv2.COLOR_BGR2GRAY)
+            #rgb = np.asarray([rgb, prev_gray]).transpose([1, 2, 0])
+            #prev_gray = img
+            frames.append(rgb)
+        
+        return np.asarray(frames, dtype=np.float32)
