@@ -43,11 +43,11 @@ def run(configs,
                                            videotransforms.RandomHorizontalFlip(), ])
     test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
-    dataset = Dataset(root, 'train', int(train_split), mode, train_transforms)
+    dataset = Dataset(root, 'train', int(train_split), mode, train_transforms, rate)
     dataloader = torch.utils.data.DataLoader(dataset, batch_size=configs.batch_size, shuffle=True, num_workers=0,
                                              pin_memory=True)
 
-    val_dataset = Dataset(root, 'test', int(train_split), mode, test_transforms)
+    val_dataset = Dataset(root, 'test', int(train_split), mode, test_transforms, rate)
     val_dataloader = torch.utils.data.DataLoader(val_dataset, batch_size=configs.batch_size, shuffle=True, num_workers=2,
                                                  pin_memory=False)
 

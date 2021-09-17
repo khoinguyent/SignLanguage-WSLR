@@ -213,7 +213,8 @@ class VideoProcessing():
             #rgb = cv2.cvtColor(rgb, cv2.COLOR_BGR2GRAY)
             #rgb = np.asarray([rgb, prev_gray]).transpose([1, 2, 0])
             #prev_gray = img
-            frames.append(flow)
+            for i in range(0, rate):
+                frames.append(flow)
         
         return np.asarray(frames, dtype=np.float32)
 
