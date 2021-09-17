@@ -91,7 +91,10 @@ class NSLT(data_utl.Dataset):
         """
         vid, label, src, start_frame, nf = self.data[index]
 
-        total_frames = 64
+        if self.mode == 'rgb':
+            total_frames = 64
+        else:
+            total_frames = 10
 
         try:
             start_f = random.randint(0, nf - total_frames - 1) + start_frame
