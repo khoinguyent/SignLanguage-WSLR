@@ -42,7 +42,7 @@ def make_dataset(path, split, num_classes):
     return dataset
 
 class ASL(data_utl.Dataset):
-    def __init__(self, path, split, num_classes, mode, transforms=None):
+    def __init__(self, path, split, num_classes, mode, transforms=None, rate = 1):
         self.num_classes = num_classes
         self.mode = mode
         self.data = make_dataset(path, split, num_classes=self.num_classes)
