@@ -185,12 +185,12 @@ class VideoProcessing():
 
             # Calculates dense optical flow by Farneback method
             
-            flow = cv2.calcOpticalFlowFarneback(prev_gray, img, 
-                                                None,
-                                                0.5, 3, 15, 3, 5, 1.2, 0)
+            #flow = cv2.calcOpticalFlowFarneback(prev_gray, img, 
+            #                                    None,
+            #                                    0.5, 3, 15, 3, 5, 1.2, 0)
 
-            #optical_flow = cv2.optflow.createOptFlow_DualTVL1()
-            #flow = optical_flow.calc(prev_gray, img, None)
+            optical_flow = cv2.optflow.createOptFlow_DualTVL1()
+            flow = optical_flow.calc(prev_gray, img, None)
 
             #print('flow shape:', flow.shape)
             # Computes the magnitude and angle of the 2D vectors
