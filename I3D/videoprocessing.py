@@ -192,7 +192,7 @@ class VideoProcessing():
             #optical_flow = cv2.optflow.createOptFlow_DualTVL1()
             #flow = optical_flow.calc(prev_gray, img, None)
 
-            optical_flow = ccv2.optflow.createOptFlow_DeepFlow()
+            optical_flow = cv2.optflow.createOptFlow_DeepFlow()
             flow = optical_flow.calc(prev_gray, img, None)
 
             #print('flow shape:', flow.shape)
