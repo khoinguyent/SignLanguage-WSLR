@@ -192,6 +192,9 @@ class VideoProcessing():
             horz = cv2.normalize(flow[...,0], None, 0, 255, cv2.NORM_MINMAX)
             vert = cv2.normalize(flow[...,1], None, 0, 255, cv2.NORM_MINMAX)
 
+            #scale to -[1, 1]
+            horz = horz / 255.0
+            vert = vert / 255.0
             #optical_flow = cv2.optflow.createOptFlow_DualTVL1()
             #flow = optical_flow.calc(prev_gray, img, None)
 
