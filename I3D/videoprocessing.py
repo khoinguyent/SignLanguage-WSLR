@@ -185,15 +185,18 @@ class VideoProcessing():
 
             # Calculates dense optical flow by Farneback method
             
-            #flow = cv2.calcOpticalFlowFarneback(prev_gray, img, 
-            #                                    None,
-            #                                    0.5, 3, 15, 3, 5, 1.2, 0)
+            flow = cv2.calcOpticalFlowFarneback(prev_gray, img, 
+                                                None,
+                                                0.5, 3, 15, 3, 5, 1.2, 0)
+
+            horz = cv2.normalize(flow[...,0], None, 0, 255, cv2.NORM_MINMAX)
+            vert = cv2.normalize(flow[...,1], None, 0, 255, cv2.NORM_MINMAX)
 
             #optical_flow = cv2.optflow.createOptFlow_DualTVL1()
             #flow = optical_flow.calc(prev_gray, img, None)
 
-            optical_flow = cv2.optflow.createOptFlow_DeepFlow()
-            flow = optical_flow.calc(prev_gray, img, None)
+            #optical_flow = cv2.optflow.createOptFlow_DeepFlow()
+            #flow = optical_flow.calc(prev_gray, img, None)
 
             #print('flow shape:', flow.shape)
             # Computes the magnitude and angle of the 2D vectors
@@ -216,8 +219,10 @@ class VideoProcessing():
             #rgb = cv2.cvtColor(rgb, cv2.COLOR_BGR2GRAY)
             #rgb = np.asarray([rgb, prev_gray]).transpose([1, 2, 0])
             #prev_gray = img
+            frame = np.asarray([horz, vert]).transpose([1, 2, 0])
+
             for i in range(0, rate):
-                frames.append(flow)
+                frames.append(frame)
         
         return np.asarray(frames, dtype=np.float32)
 
