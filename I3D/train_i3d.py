@@ -83,7 +83,7 @@ def run(configs,
     else:
         print("load weights {}".format(weights))
         weights = torch.load(weights)
-        print(weights)
+        #print(weights)
         i3d.load_state_dict(weights)
 
         #continue write files
