@@ -113,7 +113,6 @@ def run(configs,
     while steps < configs.max_steps and epoch < 400:  # for epoch in range(num_epochs):
         print('Step {}/{}'.format(steps, configs.max_steps))
         print('-' * 10)
-
         epoch += 1
         # Each epoch has a training and validation phase
         for phase in ['train', 'test']:

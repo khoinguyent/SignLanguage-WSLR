@@ -70,7 +70,7 @@ class ASL(data_utl.Dataset):
             imgs = vp.load_rgb_frames_from_video(self.path, vid, start_f, total_frames)
         
         if(self.mode == 'flow'):
-            imgs = vp.load_flow_frames_upd(self.path, vid, 0, total_frames, self.rate)
+            imgs = vp.load_flow_frames_upd(self.path, vid, start_f, total_frames, self.rate)
 
         #print(vid, imgs.shape)
         imgs, label = self.pad(imgs, label, total_frames)
