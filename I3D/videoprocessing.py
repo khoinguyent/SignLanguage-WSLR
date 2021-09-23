@@ -155,7 +155,7 @@ class VideoProcessing():
         prev_gray = []
         # i = 0
         vidcap.set(cv2.CAP_PROP_POS_FRAMES, start)
-        for offset in range(start, min(num, int(total_frames - start)), rate):
+        for offset in range(min(num, int(total_frames - start))):
             success, img = vidcap.read()
 
             w, h, c = img.shape
