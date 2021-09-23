@@ -100,7 +100,7 @@ class NSLT(data_utl.Dataset):
         except ValueError:
             start_f = start_frame
 
-        #print('start frame: ', start_f)
+        print(vid, start_frame, start_f)
         if(self.mode == 'rgb'):
             imgs = vp.load_rgb_frames_from_video(self.root['word'], vid, start_f, total_frames)
         
