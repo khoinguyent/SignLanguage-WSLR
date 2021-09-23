@@ -90,7 +90,6 @@ class NSLT(data_utl.Dataset):
             tuple: (image, target) where target is class_index of the target class.
         """
         vid, label, src, start_frame, nf = self.data[index]
-        print(vid)
         if self.mode == 'rgb':
             total_frames = 64
         else:
