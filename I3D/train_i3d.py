@@ -73,6 +73,7 @@ def run(configs,
     #load weights
     prefix = "nlst_"
     log_file = prefix + mode + "_" + str(num_classes) + "_log.csv"
+    log_file = os.path.join(save_model, log_file)
     if(weights == None):
         if(os.path.exists(log_file)):
             os.remove(log_file)
