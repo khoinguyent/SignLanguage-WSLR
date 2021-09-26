@@ -79,7 +79,7 @@ def run(configs,
             os.remove(log_file)
 
         with open (log_file,'a') as logs:
-            line = 'epoch\ts\ttot_loss_train\tacc_val\ttotal_loss_train\n'
+            line = 'epoch\tacc_train\ttot_loss_train\tacc_val\ttotal_loss_val\n'
             logs.writelines(line)
     else:
         print("load weights {}".format(weights))
