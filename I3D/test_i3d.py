@@ -90,7 +90,7 @@ def run(root, train_split, rgb_weights, flow_weights, configs):
         flow_inputs = flow_inputs.cuda()
         t2 = flow_inputs.size(2)
 
-        labels = labels.cuda()
+        #labels = labels.cuda()
 
         per_rgb_frame_logits = i3d_rgb(rgb_inputs, pretrained=False)
         # upsample to input size
