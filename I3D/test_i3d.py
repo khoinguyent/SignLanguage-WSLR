@@ -102,9 +102,11 @@ def run(root, train_split, rgb_weights, flow_weights, configs):
 
         per_frame_logits = (per_rgb_frame_logits + per_flow_frame_logits) / 2.0
         predictions = torch.mean(per_frame_logits, dim=2)[0]
-        print('Prediction: ', predictions)
+
+        #print('Prediction: ', predictions)
         out_labels = np.argsort(predictions.cpu().detach().numpy())
 
+        print('Out labels:', out_labels)
         if labels[0].item() in out_labels[-5:]:
             correct_5 += 1
             top5_tp[labels[0].item()] += 1
