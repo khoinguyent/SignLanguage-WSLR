@@ -42,7 +42,10 @@ def run(root, train_split, rgb_weights, flow_weights, configs):
     num_classes = dataset.num_classes
     #load models
     i3d_flow = InceptionI3d(400, in_channels=2)
+    i3d_flow.load_state_dict(torch.load('weights/flow_imagenet.pt'))
+    
     i3d_rgb = InceptionI3d(400, in_channels=3)
+    i3d_rgb.load_state_dict(torch.load('weights/rgb_imagenet.pt'))
 
     i3d_flow.replace_logits(num_classes)
     i3d_rgb.replace_logits(num_classes)
