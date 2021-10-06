@@ -52,7 +52,7 @@ def run(root, train_split, rgb_weights, flow_weights, configs):
 
     #load weights
     rgb_weights = torch.load(rgb_weights)
-    rgb_weights = torch.load(flow_weights)
+    flow_weights = torch.load(flow_weights)
     
     i3d_rgb.load_state_dict(rgb_weights, strict=True)
     i3d_flow.load_state_dict(flow_weights, strict=True)
