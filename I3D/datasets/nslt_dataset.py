@@ -73,9 +73,8 @@ class NSLT(data_utl.Dataset):
 
     def __init__(self, split_file, split, root, mode, transforms=None, rate=1):
         self.num_classes = get_num_class(split_file)
-
         self.rate = rate
-        self.data = make_dataset(split_file, split, root, mode, num_classes=self.num_classes, rate = self.rate)
+        self.data = make_dataset(split_file, split, root, num_classes=self.num_classes, rate = self.rate)
         self.split_file = split_file
         self.transforms = transforms
         self.mode = mode
