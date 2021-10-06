@@ -36,7 +36,7 @@ def run(root, train_split, rgb_weights, flow_weights, configs):
     test_transforms = transforms.Compose([videotransforms.CenterCrop(224)])
 
     dataset = Dataset(train_split, 'test', root, test_transforms)
-    dataloader = torch.utils.data.DataLoader(dataset, batch_size=configs.batch_size, shuffle=True, num_workers=0,
+    dataloader = torch.utils.data.DataLoader(dataset, batch_size=1, shuffle=True, num_workers=0,
                                              pin_memory=True)
 
     num_classes = dataset.num_classes
